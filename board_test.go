@@ -34,8 +34,8 @@ func TestNewBoard(t *testing.T) {
 		for y := range 8 {
 			for x := range 8 {
 				piece, _ := board.GetPiece(x, y)
-				if *piece != test[y*8+x] {
-					t.Errorf("got %v wanted %v on x:%v y:%v", *piece, test[y*8+x], x, y)
+				if piece != test[y*8+x] {
+					t.Errorf("got %v wanted %v on x:%v y:%v", piece, test[y*8+x], x, y)
 				}
 			}
 		}
@@ -81,11 +81,11 @@ func TestSetPiece(t *testing.T) {
 				placement := placements[i]
 				piece, _ := board.GetPiece(placement.pos[0], placement.pos[1])
 				if placement.expected {
-					if *piece != placement.piece {
-						t.Errorf("want %v at %v,%v got %v", placement.piece, placement.pos[0], placement.pos[1], *piece)
+					if piece != placement.piece {
+						t.Errorf("want %v at %v,%v got %v", placement.piece, placement.pos[0], placement.pos[1], piece)
 					}
 				} else {
-					if *piece == placement.piece {
+					if piece == placement.piece {
 						t.Errorf("expected %v to be replaced at %v,%v", placement.piece, placement.pos[0], placement.pos[1])
 					}
 				}

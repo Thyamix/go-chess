@@ -24,13 +24,13 @@ func NewBoard() Board {
 	return Board{board: board}
 }
 
-func (b *Board) GetPiece(x int, y int) (*Piece, error) {
+func (b *Board) GetPiece(x int, y int) (Piece, error) {
 	if x > 7 || y > 7 {
-		return nil, fmt.Errorf("x: %v and y: %v is not a valid square", x, y)
+		return EMPTY, fmt.Errorf("x: %v and y: %v is not a valid square", x, y)
 	}
 	row := b.board[y]
 	piece := (Piece)(row>>(4*x)) & 0xF
-	return &piece, nil
+	return piece, nil
 }
 
 /*

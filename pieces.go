@@ -29,6 +29,64 @@ func addThreats(board *Board, x int, y int, isBlackTurn bool) {
 	case KING:
 		addKingThreats(board, piece, x, y)
 		return
+	case BISHOP:
+		addBishopThreats(board, piece, x, y)
+		return
+	}
+}
+
+func addBishopThreats(board *Board, piece Piece, x int, y int) {
+	// Top right
+	targetX := x + 1
+	targetY := y + 1
+	finished := false
+	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
+		targetPiece, _ := board.GetPiece(targetX, targetX)
+		if targetPiece != EMPTY {
+			finished = true
+		}
+		board.threats[targetY] |= (0b00000001 << targetX)
+		targetX += 1
+		targetY += 1
+	}
+	// Bottom right
+	targetX = x + 1
+	targetY = y - 1
+	finished = false
+	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
+		targetPiece, _ := board.GetPiece(targetX, targetX)
+		if targetPiece != EMPTY {
+			finished = true
+		}
+		board.threats[targetY] |= (0b00000001 << targetX)
+		targetX += 1
+		targetY -= 1
+	}
+	// Top left
+	targetX = x - 1
+	targetY = y + 1
+	finished = false
+	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
+		targetPiece, _ := board.GetPiece(targetX, targetX)
+		if targetPiece != EMPTY {
+			finished = true
+		}
+		board.threats[targetY] |= (0b00000001 << targetX)
+		targetX -= 1
+		targetY += 1
+	}
+	// Botton left
+	targetX = x - 1
+	targetY = y - 1
+	finished = false
+	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
+		targetPiece, _ := board.GetPiece(targetX, targetX)
+		if targetPiece != EMPTY {
+			finished = true
+		}
+		board.threats[targetY] |= (0b00000001 << targetX)
+		targetX -= 1
+		targetY -= 1
 	}
 }
 

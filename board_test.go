@@ -143,6 +143,15 @@ func TestGetThreats(t *testing.T) {
 			[]TestPiece{{KING.White(), 5, 7}}, false, [][2]int{{4, 7}, {6, 7}, {4, 6}, {5, 6}, {6, 6}}},
 		"Single King Bottom Corner": {
 			[]TestPiece{{KING.White(), 0, 0}}, false, [][2]int{{0, 1}, {1, 1}, {1, 0}}},
+		"Single Bishop Bottom Left Corner": {
+			[]TestPiece{{BISHOP.Black(), 0, 0}}, true, [][2]int{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}}},
+		"Single Bishop Top Right Corner": {
+			[]TestPiece{{BISHOP.Black(), 7, 7}}, true, [][2]int{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {0, 0}}},
+		"Single Bishop Center": {
+			[]TestPiece{{BISHOP.Black(), 4, 4}}, true, [][2]int{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {5, 5}, {6, 6}, {7, 7},
+				{5, 3}, {6, 2}, {7, 1}, {2, 6}, {1, 7}, {2, 6}, {3, 5}}},
+		"Single Bishop Center Obstructed": {
+			[]TestPiece{{BISHOP.White(), 4, 4}, {ROOK.Black(), 6, 6}, {PAWN.Black(), 6, 2}}, false, [][2]int{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {5, 5}, {6, 6}, {5, 3}, {6, 2}, {1, 7}, {2, 6}, {2, 6}, {3, 5}}},
 	}
 
 	for test := range tests {

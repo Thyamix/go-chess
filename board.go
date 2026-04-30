@@ -48,6 +48,25 @@ func (b *Board) GetThreats(isBlackTurn bool) {
 	}
 }
 
+func (b *Board) PrintThreats() {
+	for y := 7; y >= 0; y-- {
+		for x := range 8 {
+			bit := (b.threats[y] >> x) & 1
+			if bit == 1 {
+				fmt.Print("X ")
+			} else {
+				p, _ := b.GetPiece(x, y)
+				if p != EMPTY {
+					fmt.Print("P ")
+				} else {
+					fmt.Print(". ")
+				}
+			}
+		}
+		fmt.Println()
+	}
+}
+
 /*
 Sets a Piece on the board replacing any other Piece already at that location
 */

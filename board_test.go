@@ -1,6 +1,7 @@
 package gochess
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -159,7 +160,7 @@ func TestGetThreats(t *testing.T) {
 		"Single Queen Center": {
 			[]TestPiece{{QUEEN.White(), 3, 3}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
 		"Single Queen Center Obstructed": {
-			[]TestPiece{{QUEEN.Black(), 3, 3}, {KNIGHT.White(), 3, 5}, {KNIGHT.White(), 6, 3}, {ROOK.White(), 4, 4}}, true, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {4, 4}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
+			[]TestPiece{{QUEEN.Black(), 3, 3}, {KNIGHT.White(), 3, 5}, {KNIGHT.White(), 6, 3}, {ROOK.White(), 4, 4}}, true, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {4, 4}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 1}}},
 	}
 
 	for test := range tests {
@@ -170,6 +171,10 @@ func TestGetThreats(t *testing.T) {
 			got.GetThreats(tests[test].isBlackTurn)
 
 			if got.threats != expected.threats {
+				fmt.Println("Expected")
+				expected.PrintThreats()
+				fmt.Println("Got")
+				got.PrintThreats()
 				t.Errorf("got %v but wanted %v", got.threats, expected.threats)
 			}
 		})

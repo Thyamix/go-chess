@@ -125,6 +125,10 @@ func TestGetThreats(t *testing.T) {
 			[]TestPiece{{PAWN.White(), 7, 3}}, false, [][2]int{{6, 4}}},
 		"Single Pawn Edge 2": {
 			[]TestPiece{{PAWN.White(), 6, 3}}, false, [][2]int{{5, 4}, {7, 4}}},
+		"Single Pawn Edge Top": {
+			[]TestPiece{{PAWN.White(), 6, 7}}, false, [][2]int{}},
+		"Single Pawn Edge Bottom": {
+			[]TestPiece{{PAWN.Black(), 3, 0}}, true, [][2]int{}},
 		"Double Pawn": {
 			[]TestPiece{{PAWN.Black(), 4, 4}, {PAWN.Black(), 5, 4}}, true, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
 		"Double Pawn with Attack": {

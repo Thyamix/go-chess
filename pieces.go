@@ -35,7 +35,15 @@ func addThreats(board *Board, x int, y int, isBlackTurn bool) {
 	case ROOK:
 		addRookThreats(board, x, y)
 		return
+	case QUEEN:
+		addQueenThreats(board, x, y)
+		return
 	}
+}
+
+func addQueenThreats(board *Board, x int, y int) {
+	addBishopThreats(board, x, y)
+	addRookThreats(board, x, y)
 }
 
 func addRookThreats(board *Board, x int, y int) {

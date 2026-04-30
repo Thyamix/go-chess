@@ -173,9 +173,9 @@ func TestGetThreats(t *testing.T) {
 			if got.threats != expected.threats {
 				// Display threat board before error
 				fmt.Println("Expected")
-				expected.PrintThreats()
+				expected.printThreats()
 				fmt.Println("Got")
-				got.PrintThreats()
+				got.printThreats()
 				t.Errorf("got %v but wanted %v", got.threats, expected.threats)
 			}
 		})

@@ -10,7 +10,11 @@ type Board struct {
 	possibleMoves []Move
 }
 
+/*
+Generate a new board with all the pieces in default position.
+*/
 func NewBoard() Board {
+	// NOTE: Board is mirrored, right to left, and white is at top.
 	board := [8]uint32{
 		0b01000010001101010110001100100100,
 		0b00010001000100010001000100010001,
@@ -48,7 +52,10 @@ func (b *Board) GetThreats(isBlackTurn bool) {
 	}
 }
 
-func (b *Board) PrintThreats() {
+/*
+Display the threats in std out to help with debugging.
+*/
+func (b *Board) printThreats() {
 	for y := 7; y >= 0; y-- {
 		for x := range 8 {
 			bit := (b.threats[y] >> x) & 1

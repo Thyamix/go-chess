@@ -12,6 +12,9 @@ const (
 	KING   Piece = 6
 )
 
+/*
+Added threats to the board for piece in location.
+*/
 func addThreats(board *Board, x int, y int, isBlackTurn bool) {
 	piece, _ := board.GetPiece(x, y)
 	if piece.IsBlack() != isBlackTurn {
@@ -198,24 +201,39 @@ func addPawnThreats(board *Board, piece Piece, x int, y int) {
 	}
 }
 
+/*
+Get the type of piece stripping extra bits and colour.
+*/
 func (p Piece) Type() Piece {
 	return p & 0b00000111
 }
 
+/*
+Returns black version of the piece.
+*/
 func (p Piece) Black() Piece {
 	return p | 0b00001000
 }
 
+/*
+Returns white version of the piece.
+*/
 func (p Piece) White() Piece {
 	return p & 0b11110111
 }
 
+/*
+Returns a bool true if the piece is black, false if white or empty.
+*/
 func (p Piece) IsBlack() bool {
 	piece := p.Strip()
 	piece &= 0b00001000
 	return piece > 0
 }
 
+/*
+Returns piece without the 4 extra bits.
+*/
 func (p Piece) Strip() Piece {
 	return p & 0b00001111
 }

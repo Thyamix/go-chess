@@ -137,6 +137,12 @@ func TestGetThreats(t *testing.T) {
 			[]TestPiece{{KNIGHT.White(), 1, 0}}, false, [][2]int{{0, 2}, {2, 2}, {3, 1}}},
 		"Single Knight Middle": {
 			[]TestPiece{{KNIGHT.White(), 5, 5}}, false, [][2]int{{4, 3}, {6, 3}, {3, 4}, {3, 6}, {4, 7}, {6, 7}, {7, 6}, {7, 4}}},
+		"Single King Middle": {
+			[]TestPiece{{KING.White(), 5, 5}}, false, [][2]int{{4, 5}, {6, 5}, {6, 6}, {5, 6}, {4, 6}, {6, 4}, {5, 4}, {4, 4}}},
+		"Single King Top": {
+			[]TestPiece{{KING.White(), 5, 7}}, false, [][2]int{{4, 7}, {6, 7}, {4, 6}, {5, 6}, {6, 6}}},
+		"Single King Bottom Corner": {
+			[]TestPiece{{KING.White(), 0, 0}}, false, [][2]int{{0, 1}, {1, 1}, {1, 0}}},
 	}
 
 	for test := range tests {

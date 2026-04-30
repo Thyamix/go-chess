@@ -27,14 +27,24 @@ func addThreats(board *Board, x int, y int, isBlackTurn bool) {
 		addKnightThreats(board, piece, x, y)
 		return
 	case KING:
-		//		addKingThreats(board, piece, x, y)
+		addKingThreats(board, piece, x, y)
 		return
 	}
 }
 
-//func addKingThreats(board, piece, x, y) {
-//	var mask uint16
-//}
+func addKingThreats(board *Board, piece Piece, x int, y int) {
+	var mask uint16
+	if y < 7 {
+		mask = (0b00000111 << x) >> 1
+		board.threats[y+1] |= uint8(mask)
+	}
+	if y > 0 {
+		mask = (0b00000111 << x) >> 1
+		board.threats[y-1] |= uint8(mask)
+	}
+	mask = (0b00000101 << x) >> 1
+	board.threats[y] |= uint8(mask)
+}
 
 func addKnightThreats(board *Board, piece Piece, x int, y int) {
 	var mask uint16

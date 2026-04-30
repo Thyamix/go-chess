@@ -29,3 +29,23 @@ func TestPieceGetType(t *testing.T) {
 		})
 	}
 }
+
+func TestIsBlack(t *testing.T) {
+	tests := []struct {
+		piece    Piece
+		expected bool
+	}{
+		{PAWN.Black(), true},
+		{KING.Black(), true},
+		{BISHOP.White(), false},
+		{KNIGHT.White(), false},
+	}
+
+	for i := range tests {
+		t.Run("IsBlack", func(t *testing.T) {
+			if tests[i].piece.IsBlack() != tests[i].expected {
+				t.Errorf("got %v expected %v", tests[i].piece.IsBlack(), tests[i].expected)
+			}
+		})
+	}
+}

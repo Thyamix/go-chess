@@ -24,6 +24,9 @@ func NewBoard() Board {
 	return Board{board: board}
 }
 
+/*
+Gets the piece a x,y, returns EMPTY if not piece is present or if invalid x,y
+*/
 func (b *Board) GetPiece(x int, y int) (Piece, error) {
 	if x > 7 || y > 7 {
 		return EMPTY, fmt.Errorf("x: %v and y: %v is not a valid square", x, y)
@@ -37,8 +40,12 @@ func (b *Board) GetPiece(x int, y int) (Piece, error) {
 Gets the threat map based on player turn.
 If isBlackTurn == True then it will show all of the white threats and vice versa
 */
-func (b *Board) GetThreats(isBlackTurn bool) [8]uint8 {
-	return b.threats
+func (b *Board) GetThreats(isBlackTurn bool) {
+	for x := range 8 {
+		for y := range 8 {
+			addThreats(b, x, y, isBlackTurn)
+		}
+	}
 }
 
 /*

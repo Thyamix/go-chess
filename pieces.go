@@ -1,7 +1,5 @@
 package gochess
 
-import "fmt"
-
 type Piece byte
 
 const (
@@ -14,66 +12,51 @@ const (
 	KING   Piece = 6
 )
 
-func getKingThreat(board [8]uint32) [8]uint8 {
-	var threat [8]uint8
-	return threat
+func addThreats(board *Board, x int, y int, isBlackTurn bool) {
+	piece, _ := board.GetPiece(x, y)
+	if piece.IsBlack() != isBlackTurn {
+		return
+	}
+	switch piece.Type() {
+	case EMPTY:
+		return
+	case PAWN:
+		addPawnThreats(board, piece, x, y)
+		return
+	case KNIGHT:
+		addKnightThreats(board, piece, x, y)
+		return
+	}
 }
 
-func getQueenThreat(board [8]uint32) [8]uint8 {
-	var threat [8]uint8
-	return threat
+func addKnightThreats(board *Board, piece Piece, x int, y int) {
+	var mask uint16
+	if y <= 5 {
+		mask = (0b00000101 << x) >> 1
+		board.threats[y+2] |= uint8(mask)
+	}
+	if y >= 2 {
+		mask = (0b00000101 << x) >> 1
+		board.threats[y-2] |= uint8(mask)
+	}
+	if y <= 6 {
+		mask = (0b00010001 << x) >> 2
+		board.threats[y+1] |= uint8(mask)
+	}
+	if y >= 1 {
+		mask = (0b00010001 << x) >> 2
+		board.threats[y-1] |= uint8(mask)
+	}
 }
 
-func getRookThreat(board [8]uint32) [8]uint8 {
-	var threat [8]uint8
-	return threat
-}
-
-func getBishopThreat(board [8]uint32) [8]uint8 {
-	var threat [8]uint8
-	return threat
-}
-
-func getKnightThreat(board [8]uint32) [8]uint8 {
-	var threat [8]uint8
-	return threat
-}
-
-func getPawnThreat(board [8]uint32) [8]uint8 {
-	var threat [8]uint8
-	return threat
-}
-
-func (p Piece) GetThreat(board *Board) ([8]uint8, error) {
-	var threat [8]uint8
-	if p.Type() == EMPTY {
-		return threat, nil
+func addPawnThreats(board *Board, piece Piece, x int, y int) {
+	dir := 1
+	if piece.IsBlack() {
+		dir = -1
 	}
-	if p.Type() == PAWN {
-		threat = getPawnThreat(board.board)
-		return threat, nil
-	}
-	if p.Type() == KNIGHT {
-		threat = getKnightThreat(board.board)
-		return threat, nil
-	}
-	if p.Type() == BISHOP {
-		threat = getBishopThreat(board.board)
-		return threat, nil
-	}
-	if p.Type() == ROOK {
-		threat = getRookThreat(board.board)
-		return threat, nil
-	}
-	if p.Type() == QUEEN {
-		threat = getQueenThreat(board.board)
-		return threat, nil
-	}
-	if p.Type() == KING {
-		threat = getKingThreat(board.board)
-		return threat, nil
-	}
-	return threat, fmt.Errorf("Get piece threat failed with invalid piece %v", p.Type())
+	var mask uint16
+	mask = (0b00000101 << x) >> 1
+	board.threats[y+dir] |= uint8(mask)
 }
 
 func (p Piece) Type() Piece {
@@ -86,6 +69,12 @@ func (p Piece) Black() Piece {
 
 func (p Piece) White() Piece {
 	return p & 0b11110111
+}
+
+func (p Piece) IsBlack() bool {
+	piece := p.Strip()
+	piece &= 0b00001000
+	return piece > 0
 }
 
 func (p Piece) Strip() Piece {

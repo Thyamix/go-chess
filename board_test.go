@@ -94,6 +94,57 @@ func TestSetPiece(t *testing.T) {
 	}
 }
 
-func TestGetThreats(t *testing.T) {
+type TestPiece struct {
+	piece Piece
+	x     int
+	y     int
+}
 
+func MakeTestBoard(pieces []TestPiece, threats [][2]int) Board {
+	board := NewEmptyTestBoard()
+	for i := range pieces {
+		piece := pieces[i]
+		board.SetPiece(piece.piece, piece.x, piece.y)
+	}
+	for i := range threats {
+		coords := threats[i]
+		board.threats[coords[1]] |= 0b00000001 << coords[0]
+	}
+	return board
+}
+
+func TestGetThreats(t *testing.T) {
+	tests := map[string]struct {
+		pieces          []TestPiece
+		isBlackTurn     bool
+		expectedThreats [][2]int
+	}{
+		"Single Pawn": {
+			[]TestPiece{{PAWN.Black(), 4, 4}}, true, [][2]int{{3, 3}, {5, 3}}},
+		"Single Pawn Edge": {
+			[]TestPiece{{PAWN.White(), 7, 3}}, false, [][2]int{{6, 4}}},
+		"Single Pawn Edge 2": {
+			[]TestPiece{{PAWN.White(), 6, 3}}, false, [][2]int{{5, 4}, {7, 4}}},
+		"Double Pawn": {
+			[]TestPiece{{PAWN.Black(), 4, 4}, {PAWN.Black(), 5, 4}}, true, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
+		"Double Pawn with Attack": {
+			[]TestPiece{{PAWN.Black(), 4, 4}, {PAWN.Black(), 5, 4}, {PAWN.White(), 5, 3}}, true, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
+		"Single Knight Corner": {
+			[]TestPiece{{KNIGHT.White(), 1, 0}}, false, [][2]int{{0, 2}, {2, 2}, {3, 1}}},
+		"Single Knight Middle": {
+			[]TestPiece{{KNIGHT.White(), 5, 5}}, false, [][2]int{{4, 3}, {6, 3}, {3, 4}, {3, 6}, {4, 7}, {6, 7}, {7, 6}, {7, 4}}},
+	}
+
+	for test := range tests {
+		t.Run(test, func(t *testing.T) {
+			expected := MakeTestBoard(tests[test].pieces, tests[test].expectedThreats)
+			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+
+			got.GetThreats(tests[test].isBlackTurn)
+
+			if got.threats != expected.threats {
+				t.Errorf("got %v but wanted %v", got.threats, expected.threats)
+			}
+		})
+	}
 }

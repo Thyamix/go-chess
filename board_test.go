@@ -21,14 +21,14 @@ func NewEmptyTestBoard() Board {
 
 func TestNewBoard(t *testing.T) {
 	test := [64]Piece{
-		ROOK.White(), KNIGHT.White(), BISHOP.White(), QUEEN.White(), KING.White(), BISHOP.White(), KNIGHT.White(), ROOK.White(),
+		ROOK.White(), KNIGHT.White(), BISHOP.White(), KING.White(), QUEEN.White(), BISHOP.White(), KNIGHT.White(), ROOK.White(),
 		PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(),
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(),
-		ROOK.Black(), KNIGHT.Black(), BISHOP.Black(), QUEEN.Black(), KING.Black(), BISHOP.Black(), KNIGHT.Black(), ROOK.Black(),
+		ROOK.Black(), KNIGHT.Black(), BISHOP.Black(), KING.Black(), QUEEN.Black(), BISHOP.Black(), KNIGHT.Black(), ROOK.Black(),
 	}
 	t.Run("New Board", func(t *testing.T) {
 		board := NewBoard()
@@ -160,7 +160,7 @@ func TestGetThreats(t *testing.T) {
 		"Single Queen Center": {
 			[]TestPiece{{QUEEN.White(), 3, 3}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
 		"Single Queen Center Obstructed": {
-			[]TestPiece{{QUEEN.Black(), 3, 3}, {KNIGHT.White(), 3, 5}, {KNIGHT.White(), 6, 3}, {ROOK.White(), 4, 4}}, true, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {4, 4}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 1}}},
+			[]TestPiece{{QUEEN.Black(), 3, 3}, {KNIGHT.White(), 3, 5}, {KNIGHT.White(), 6, 3}, {ROOK.White(), 4, 4}}, true, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {4, 4}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
 	}
 
 	for test := range tests {
@@ -171,6 +171,7 @@ func TestGetThreats(t *testing.T) {
 			got.GetThreats(tests[test].isBlackTurn)
 
 			if got.threats != expected.threats {
+				// Display threat board before error
 				fmt.Println("Expected")
 				expected.PrintThreats()
 				fmt.Println("Got")

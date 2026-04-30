@@ -60,7 +60,11 @@ func (b *Board) printThreats() {
 		for x := range 8 {
 			bit := (b.threats[y] >> x) & 1
 			if bit == 1 {
-				fmt.Print("X ")
+				if p, _ := b.GetPiece(x, y); p == EMPTY {
+					fmt.Print("X ")
+				} else {
+					fmt.Print("O ")
+				}
 			} else {
 				p, _ := b.GetPiece(x, y)
 				if p != EMPTY {

@@ -205,10 +205,12 @@ func TestPossibleMoves(t *testing.T) {
 		isBlackTurn   bool
 		expectedMoves []Move
 	}{
-		"Single Pawn":            {[]TestPiece{{PAWN.Black(), 4, 6}}, true, []Move{0x4645, 0x4644}},
-		"Single Pawn Obstructed": {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}}, true, []Move{}},
-		"Single Pawn Take":       {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}}, true, []Move{0x4645, 0x4644, 0x4655}},
-		"Many Pawns":             {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644}},
+		"Single Pawn":              {[]TestPiece{{PAWN.Black(), 4, 6}}, true, []Move{0x4645, 0x4644}},
+		"Single Pawn Obstructed":   {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}}, true, []Move{}},
+		"Single Pawn Take":         {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}}, true, []Move{0x4645, 0x4644, 0x4655}},
+		"Many Pawns":               {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644}},
+		"Single Knight":            {[]TestPiece{{KNIGHT.Black(), 4, 4}}, true, []Move{0x4436, 0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465}},
+		"Single Knight Obstructed": {[]TestPiece{{KNIGHT.White(), 4, 4}, {PAWN.White(), 3, 6}, {PAWN.Black(), 3, 2}}, false, []Move{0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x3637}},
 	}
 
 	for test := range tests {
@@ -219,6 +221,29 @@ func TestPossibleMoves(t *testing.T) {
 
 			if !movesMatch(got.possibleMoves, tests[test].expectedMoves) {
 				t.Errorf("got\n%v\n but wanted\n%v", got.possibleMoves, tests[test].expectedMoves)
+			}
+		})
+	}
+}
+
+func TestExecMove(t *testing.T) {
+	tests := map[string]struct {
+		pieces        []TestPiece
+		move          Move
+		expectedPiece TestPiece
+	}{
+		"Pawn":             {[]TestPiece{{PAWN.Black(), 4, 6}}, 0x4645, TestPiece{PAWN.Black(), 4, 5}},
+		"Knight":           {[]TestPiece{{KNIGHT.Black(), 3, 3}}, 0x3354, TestPiece{KNIGHT.Black(), 5, 4}},
+		"Bishop take Rook": {[]TestPiece{{BISHOP.Black(), 5, 5}, {ROOK.White(), 1, 1}}, 0x5511, TestPiece{BISHOP.Black(), 1, 1}},
+	}
+	for test := range tests {
+		t.Run(test, func(t *testing.T) {
+			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+
+			got.ExecMove(tests[test].move)
+
+			if piece, _ := got.GetPiece(tests[test].expectedPiece.x, tests[test].expectedPiece.y); piece == tests[test].expectedPiece.piece.Strip() {
+				t.Errorf("got\n%v\n but wanted\n%v", piece, tests[test].expectedPiece.piece)
 			}
 		})
 	}

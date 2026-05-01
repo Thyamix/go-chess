@@ -1,5 +1,7 @@
 package gochess
 
+import "fmt"
+
 type Piece byte
 
 const (
@@ -12,6 +14,62 @@ const (
 	KING   Piece = 6
 )
 
+func addKnightMoves(board *Board, x int, y int, isBlack bool) {
+	// Right
+	move, err := createMove(x, y, x+2, y+1)
+	if err == nil {
+		if piece, _ := board.GetPiece(x+2, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	move, err = createMove(x, y, x+2, y-1)
+	if err == nil {
+		if piece, _ := board.GetPiece(x+2, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	// Left
+	move, err = createMove(x, y, x-2, y+1)
+	if err == nil {
+		if piece, _ := board.GetPiece(x-2, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	move, err = createMove(x, y, x-2, y-1)
+	if err == nil {
+		if piece, _ := board.GetPiece(x-2, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	// Top
+	move, err = createMove(x, y, x+1, y+2)
+	if err == nil {
+		if piece, _ := board.GetPiece(x+1, y+2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	move, err = createMove(x, y, x-1, y+2)
+	if err == nil {
+		if piece, _ := board.GetPiece(x-1, y+2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	// Bottom
+	move, err = createMove(x, y, x+1, y-2)
+	if err == nil {
+		if piece, _ := board.GetPiece(x+1, y-2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+	move, err = createMove(x, y, x-1, y-2)
+	if err == nil {
+		if piece, _ := board.GetPiece(x-1, y-2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
+			board.possibleMoves = append(board.possibleMoves, move)
+		}
+	}
+
+}
+
 func addPawnMoves(board *Board, x int, y int, isBlack bool) {
 	dir := 1
 	homerank := 1
@@ -21,33 +79,55 @@ func addPawnMoves(board *Board, x int, y int, isBlack bool) {
 	}
 	if piece, _ := board.GetPiece(x, y+dir); piece == EMPTY {
 		if y+dir <= 7 && y+dir >= 0 {
-			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x, y+dir))
+			move, err := createMove(x, y, x, y+dir)
+			if err != nil {
+				return
+			}
+			board.possibleMoves = append(board.possibleMoves, move)
 		}
 		if piece, _ := board.GetPiece(x, y+dir*2); piece == EMPTY && y == homerank {
 			if y+dir <= 7 && y+dir*2 >= 0 {
-				board.possibleMoves = append(board.possibleMoves, createMove(x, y, x, y+dir*2))
+				move, err := createMove(x, y, x, y+dir*2)
+				if err != nil {
+					return
+				}
+				board.possibleMoves = append(board.possibleMoves, move)
 			}
 		}
 	}
 	if piece, _ := board.GetPiece(x+1, y+dir); piece != EMPTY && piece.IsBlack() != isBlack {
 		if y+dir <= 7 && y+dir >= 0 {
-			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x+1, y+dir))
+			move, err := createMove(x, y, x+1, y+dir)
+			if err != nil {
+				return
+			}
+			board.possibleMoves = append(board.possibleMoves, move)
 		}
 	}
 	if piece, _ := board.GetPiece(x-1, y+dir); piece != EMPTY && piece.IsBlack() != isBlack {
 		if y+dir <= 7 && y+dir >= 0 {
-			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x-1, y+dir))
+			move, err := createMove(x, y, x-1, y+dir)
+			if err != nil {
+				return
+			}
+			board.possibleMoves = append(board.possibleMoves, move)
 		}
 	}
 }
 
-func createMove(pieceX int, pieceY int, targetX int, targetY int) Move {
+func createMove(pieceX int, pieceY int, targetX int, targetY int) (Move, error) {
 	var move Move
+	if pieceX > 7 || pieceX < 0 || pieceY > 7 || pieceY < 0 {
+		return move, fmt.Errorf("Piece not in play area")
+	}
+	if targetX > 7 || targetX < 0 || targetY > 7 || targetY < 0 {
+		return move, fmt.Errorf("Target not in play area")
+	}
 	move |= Move(pieceX << 12)
 	move |= Move(pieceY << 8)
 	move |= Move(targetX << 4)
 	move |= Move(targetY)
-	return move
+	return move, nil
 }
 
 /*

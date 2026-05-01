@@ -32,6 +32,40 @@ func NewBoard() Board {
 }
 
 /*
+Checks all threats to check move legality and to make sure king is not threatened.
+*/
+func (b *Board) CheckMoveLegality(move Move, isBlack bool) bool {
+	//testBoard := *b
+
+	return true
+}
+
+/*
+Moves piece by setting EMPTY to current location, and setPiece to new (this replaces any piece currently there)
+*/
+func (b *Board) ExecMove(move Move) error {
+	var x int
+	var y int
+	var destX int
+	var destY int
+	x = int(move & 0b0000000000001111)
+	move >>= 4
+	y = int(move & 0b0000000000001111)
+	move >>= 4
+	destX = int(move & 0b0000000000001111)
+	move >>= 4
+	destY = int(move & 0b0000000000001111)
+
+	piece, err := b.GetPiece(x, y)
+	if err != nil {
+		return err
+	}
+	b.SetPiece(EMPTY, x, y)
+	b.SetPiece(piece, destX, destY)
+	return nil
+}
+
+/*
 Adds all possible moves to the Board for the selected turn. Black for true, White for false.
 */
 func (b *Board) AddPossibleMoves(isBlackTurn bool) {
@@ -42,6 +76,8 @@ func (b *Board) AddPossibleMoves(isBlackTurn bool) {
 				switch piece.Type() {
 				case PAWN:
 					addPawnMoves(b, x, y, isBlackTurn)
+				case KNIGHT:
+					addKnightMoves(b, x, y, isBlackTurn)
 				}
 			}
 		}

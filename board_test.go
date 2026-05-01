@@ -2,6 +2,7 @@ package gochess
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 )
 
@@ -180,4 +181,44 @@ func TestGetThreats(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPossibleMoves(t *testing.T) {
+	tests := map[string]struct {
+		pieces        []TestPiece
+		isBlackTurn   bool
+		expectedMoves []Move
+	}{
+		"Single Pawn":            {[]TestPiece{{PAWN.Black(), 4, 6}}, true, []Move{0x4645, 0x4644}},
+		"Single Pawn Obstructed": {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}}, true, []Move{}},
+		"Single Pawn Take":       {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}}, true, []Move{0x4645, 0x4644, 0x4655}},
+	}
+
+	for test := range tests {
+		t.Run(test, func(t *testing.T) {
+			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+
+			got.AddPossibleMoves(tests[test].isBlackTurn)
+
+			if !movesMatch(got.possibleMoves, tests[test].expectedMoves) {
+				t.Errorf("got %v but wanted %v", got.possibleMoves, tests[test].expectedMoves)
+			}
+		})
+	}
+}
+
+func movesMatch(a []Move, b []Move) bool {
+	slices.Sort(a)
+	slices.Sort(b)
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }

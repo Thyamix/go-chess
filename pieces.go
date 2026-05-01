@@ -12,6 +12,42 @@ const (
 	KING   Piece = 6
 )
 
+func addPawnMoves(board *Board, x int, y int, isBlack bool) {
+	dir := 1
+	if isBlack {
+		dir = -1
+	}
+	if piece, _ := board.GetPiece(x, y+dir); piece == EMPTY {
+		if y+dir <= 7 && y+dir >= 0 {
+			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x, y+dir))
+		}
+		if piece, _ := board.GetPiece(x, y+dir*2); piece == EMPTY {
+			if y+dir <= 7 && y+dir*2 >= 0 {
+				board.possibleMoves = append(board.possibleMoves, createMove(x, y, x, y+dir*2))
+			}
+		}
+	}
+	if piece, _ := board.GetPiece(x+1, y+dir); piece != EMPTY && piece.IsBlack() != isBlack {
+		if y+dir <= 7 && y+dir >= 0 {
+			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x+1, y+dir))
+		}
+	}
+	if piece, _ := board.GetPiece(x-1, y+dir); piece != EMPTY && piece.IsBlack() != isBlack {
+		if y+dir <= 7 && y+dir >= 0 {
+			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x-1, y+dir))
+		}
+	}
+}
+
+func createMove(pieceX int, pieceY int, targetX int, targetY int) Move {
+	var move Move
+	move |= Move(pieceX << 12)
+	move |= Move(pieceY << 8)
+	move |= Move(targetX << 4)
+	move |= Move(targetY)
+	return move
+}
+
 /*
 Added threats to the board for piece in location.
 */

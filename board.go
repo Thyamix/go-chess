@@ -2,12 +2,15 @@ package gochess
 
 import "fmt"
 
-type Move uint8
+// 4 bits start x, 4 bits start y, 4 bits end x, 4 bits end y.
+type Move uint16
 
 type Board struct {
 	board         [8]uint32
-	threats       [8]uint8
+	threats       [8]byte
 	possibleMoves []Move
+	whiteKing     byte
+	blackKing     byte
 }
 
 /*
@@ -25,7 +28,24 @@ func NewBoard() Board {
 		0b10011001100110011001100110011001,
 		0b11001010101111011110101110101100,
 	}
-	return Board{board: board}
+	return Board{board: board, whiteKing: 0x03, blackKing: 0x73}
+}
+
+/*
+Adds all possible moves to the Board for the selected turn. Black for true, White for false.
+*/
+func (b *Board) AddPossibleMoves(isBlackTurn bool) {
+	for y := range 8 {
+		for x := range 8 {
+			piece, _ := b.GetPiece(x, y)
+			if piece.IsBlack() == isBlackTurn {
+				switch piece.Type() {
+				case PAWN:
+					addPawnMoves(b, x, y, isBlackTurn)
+				}
+			}
+		}
+	}
 }
 
 /*

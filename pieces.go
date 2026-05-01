@@ -14,14 +14,16 @@ const (
 
 func addPawnMoves(board *Board, x int, y int, isBlack bool) {
 	dir := 1
+	homerank := 1
 	if isBlack {
 		dir = -1
+		homerank = 6
 	}
 	if piece, _ := board.GetPiece(x, y+dir); piece == EMPTY {
 		if y+dir <= 7 && y+dir >= 0 {
 			board.possibleMoves = append(board.possibleMoves, createMove(x, y, x, y+dir))
 		}
-		if piece, _ := board.GetPiece(x, y+dir*2); piece == EMPTY {
+		if piece, _ := board.GetPiece(x, y+dir*2); piece == EMPTY && y == homerank {
 			if y+dir <= 7 && y+dir*2 >= 0 {
 				board.possibleMoves = append(board.possibleMoves, createMove(x, y, x, y+dir*2))
 			}

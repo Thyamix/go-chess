@@ -183,30 +183,6 @@ func TestGetThreats(t *testing.T) {
 	}
 }
 
-func TestPossibleMoves(t *testing.T) {
-	tests := map[string]struct {
-		pieces        []TestPiece
-		isBlackTurn   bool
-		expectedMoves []Move
-	}{
-		"Single Pawn":            {[]TestPiece{{PAWN.Black(), 4, 6}}, true, []Move{0x4645, 0x4644}},
-		"Single Pawn Obstructed": {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}}, true, []Move{}},
-		"Single Pawn Take":       {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}}, true, []Move{0x4645, 0x4644, 0x4655}},
-	}
-
-	for test := range tests {
-		t.Run(test, func(t *testing.T) {
-			got := MakeTestBoard(tests[test].pieces, [][2]int{})
-
-			got.AddPossibleMoves(tests[test].isBlackTurn)
-
-			if !movesMatch(got.possibleMoves, tests[test].expectedMoves) {
-				t.Errorf("got %v but wanted %v", got.possibleMoves, tests[test].expectedMoves)
-			}
-		})
-	}
-}
-
 func movesMatch(a []Move, b []Move) bool {
 	slices.Sort(a)
 	slices.Sort(b)
@@ -221,4 +197,29 @@ func movesMatch(a []Move, b []Move) bool {
 		}
 	}
 	return true
+}
+
+func TestPossibleMoves(t *testing.T) {
+	tests := map[string]struct {
+		pieces        []TestPiece
+		isBlackTurn   bool
+		expectedMoves []Move
+	}{
+		"Single Pawn":            {[]TestPiece{{PAWN.Black(), 4, 6}}, true, []Move{0x4645, 0x4644}},
+		"Single Pawn Obstructed": {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}}, true, []Move{}},
+		"Single Pawn Take":       {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}}, true, []Move{0x4645, 0x4644, 0x4655}},
+		"Many Pawns":             {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644}},
+	}
+
+	for test := range tests {
+		t.Run(test, func(t *testing.T) {
+			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+
+			got.AddPossibleMoves(tests[test].isBlackTurn)
+
+			if !movesMatch(got.possibleMoves, tests[test].expectedMoves) {
+				t.Errorf("got\n%v\n but wanted\n%v", got.possibleMoves, tests[test].expectedMoves)
+			}
+		})
+	}
 }

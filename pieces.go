@@ -20,7 +20,7 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 	targetY := y + 1
 	finished := false
 	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetX)
+		targetPiece, _ := board.GetPiece(targetX, targetY)
 		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
 			finished = true
 		} else {
@@ -37,7 +37,7 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 	targetY = y - 1
 	finished = false
 	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetX)
+		targetPiece, _ := board.GetPiece(targetX, targetY)
 		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
 			finished = true
 		} else {
@@ -46,7 +46,7 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 				board.possibleMoves = append(board.possibleMoves, move)
 			}
 			targetX += 1
-			targetY += 1
+			targetY -= 1
 		}
 	}
 	// Top left
@@ -54,7 +54,7 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 	targetY = y + 1
 	finished = false
 	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetX)
+		targetPiece, _ := board.GetPiece(targetX, targetY)
 		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
 			finished = true
 		} else {
@@ -62,7 +62,7 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 			if err == nil {
 				board.possibleMoves = append(board.possibleMoves, move)
 			}
-			targetX += 1
+			targetX -= 1
 			targetY += 1
 		}
 	}
@@ -71,7 +71,7 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 	targetY = y - 1
 	finished = false
 	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetX)
+		targetPiece, _ := board.GetPiece(targetX, targetY)
 		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
 			finished = true
 		} else {
@@ -79,8 +79,8 @@ func addBishopMoves(board *Board, x int, y int, isBlack bool) {
 			if err == nil {
 				board.possibleMoves = append(board.possibleMoves, move)
 			}
-			targetX += 1
-			targetY += 1
+			targetX -= 1
+			targetY -= 1
 		}
 	}
 }

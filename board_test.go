@@ -222,7 +222,7 @@ func TestExecMove(t *testing.T) {
 
 			got.ExecMove(tests[test].move)
 
-			if piece, _ := got.GetPiece(tests[test].expectedPiece.x, tests[test].expectedPiece.y); piece == tests[test].expectedPiece.piece.Strip() {
+			if piece, _ := got.GetPiece(tests[test].expectedPiece.x, tests[test].expectedPiece.y); piece != tests[test].expectedPiece.piece.Strip() {
 				t.Errorf("got\n%v\n but wanted\n%v", piece, tests[test].expectedPiece.piece)
 			}
 		})
@@ -253,7 +253,7 @@ func TestIsInCheck(t *testing.T) {
 	}
 }
 
-func TestPossibleMoves(t *testing.T) {
+func TestAddPossibleMoves(t *testing.T) {
 	tests := map[string]struct {
 		pieces        []TestPiece
 		isBlackTurn   bool
@@ -262,7 +262,7 @@ func TestPossibleMoves(t *testing.T) {
 		// All require king to check turn validity
 		"Single Pawn":              {[]TestPiece{{PAWN.Black(), 4, 6}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x7766, 0x7776, 0x7767}},
 		"Single Pawn Obstructed":   {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7766, 0x7776, 0x7767}},
-		"Single Pawn Take":         {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x4655, 0x7766, 0x7776, 0x7767}},
+		"Single Pawn Take":         {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x4655, 0x7776, 0x7767}},
 		"Many Pawns":               {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644, 0x7776, 0x7767}},
 		"Single Knight":            {[]TestPiece{{KNIGHT.Black(), 4, 4}, {KING.Black(), 7, 7}}, true, []Move{0x4436, 0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x7766, 0x7776, 0x7767}},
 		"Single Knight Obstructed": {[]TestPiece{{KNIGHT.White(), 4, 4}, {PAWN.White(), 3, 6}, {PAWN.Black(), 3, 2}, {KING.White(), 7, 7}}, false, []Move{0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x3637, 0x7766, 0x7776, 0x7767}},

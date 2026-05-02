@@ -37,9 +37,7 @@ Checks all threats to check move legality and to make sure king is not threatene
 func (b *Board) CheckMoveLegality(move Move, isBlackTurn bool) bool {
 	testBoard := *b
 	testBoard.ExecMove(move)
-	testBoard.GetThreats(!isBlackTurn)
-
-	testBoard.printThreats()
+	testBoard.GetThreats(isBlackTurn)
 
 	return !testBoard.IsInCheck(isBlackTurn)
 }
@@ -65,13 +63,13 @@ func (b *Board) ExecMove(move Move) error {
 	var y int
 	var destX int
 	var destY int
-	x = int(move & 0b0000000000001111)
-	move >>= 4
-	y = int(move & 0b0000000000001111)
+	destY = int(move & 0b0000000000001111)
 	move >>= 4
 	destX = int(move & 0b0000000000001111)
 	move >>= 4
-	destY = int(move & 0b0000000000001111)
+	y = int(move & 0b0000000000001111)
+	move >>= 4
+	x = int(move & 0b0000000000001111)
 
 	piece, err := b.GetPiece(x, y)
 	if err != nil {
@@ -82,9 +80,9 @@ func (b *Board) ExecMove(move Move) error {
 
 	if piece.Type() == KING {
 		if piece.IsBlack() {
-			b.blackKing = [2]int{x, y}
+			b.blackKing = [2]int{destX, destY}
 		} else {
-			b.whiteKing = [2]int{x, y}
+			b.whiteKing = [2]int{destX, destY}
 		}
 	}
 
@@ -173,7 +171,7 @@ func (b *Board) SetPiece(piece Piece, x int, y int) {
 	piece = piece.Strip()
 
 	//Clear existing piece
-	b.board[y] = b.board[y] & ^(0x0000000F << x * 4)
+	b.board[y] = b.board[y] & ^(0x0000000F << (x * 4))
 	//Set new piece
 	b.board[y] = b.board[y] | ((0x00000000 | uint32(piece)) << (x * 4))
 }

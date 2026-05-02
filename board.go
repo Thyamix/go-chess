@@ -9,8 +9,8 @@ type Board struct {
 	board         [8]uint32
 	threats       [8]byte
 	possibleMoves []Move
-	whiteKing     byte
-	blackKing     byte
+	whiteKing     [2]int
+	blackKing     [2]int
 }
 
 /*
@@ -28,16 +28,33 @@ func NewBoard() Board {
 		0b10011001100110011001100110011001,
 		0b11001010101111011110101110101100,
 	}
-	return Board{board: board, whiteKing: 0x03, blackKing: 0x73}
+	return Board{board: board, whiteKing: [2]int{3, 0}, blackKing: [2]int{3, 7}}
 }
 
 /*
 Checks all threats to check move legality and to make sure king is not threatened.
 */
-func (b *Board) CheckMoveLegality(move Move, isBlack bool) bool {
-	//testBoard := *b
+func (b *Board) CheckMoveLegality(move Move, isBlackTurn bool) bool {
+	testBoard := *b
+	testBoard.ExecMove(move)
+	testBoard.GetThreats(!isBlackTurn)
 
-	return true
+	testBoard.printThreats()
+
+	return !testBoard.IsInCheck(isBlackTurn)
+}
+
+func (b *Board) IsInCheck(isBlack bool) bool {
+	var king [2]int
+	if isBlack {
+		king = b.blackKing
+	} else {
+		king = b.whiteKing
+	}
+	if ((b.threats[king[1]] >> king[0]) & 0b00000001) > 0 {
+		return true
+	}
+	return false
 }
 
 /*
@@ -62,6 +79,15 @@ func (b *Board) ExecMove(move Move) error {
 	}
 	b.SetPiece(EMPTY, x, y)
 	b.SetPiece(piece, destX, destY)
+
+	if piece.Type() == KING {
+		if piece.IsBlack() {
+			b.blackKing = [2]int{x, y}
+		} else {
+			b.whiteKing = [2]int{x, y}
+		}
+	}
+
 	return nil
 }
 
@@ -78,8 +104,13 @@ func (b *Board) AddPossibleMoves(isBlackTurn bool) {
 					addPawnMoves(b, x, y, isBlackTurn)
 				case KNIGHT:
 					addKnightMoves(b, x, y, isBlackTurn)
+				case KING:
+					addKingMoves(b, x, y, isBlackTurn)
+				case BISHOP:
+					addBishopMoves(b, x, y, isBlackTurn)
 				}
 			}
+
 		}
 	}
 }
@@ -98,7 +129,7 @@ func (b *Board) GetPiece(x int, y int) (Piece, error) {
 
 /*
 Gets the threat map based on player turn.
-If isBlackTurn == True then it will show all of the white threats and vice versa
+If isBlackTurn == True then it will show all of the black threats and vice versa
 */
 func (b *Board) GetThreats(isBlackTurn bool) {
 	for x := range 8 {
@@ -132,6 +163,7 @@ func (b *Board) printThreats() {
 		}
 		fmt.Println()
 	}
+	fmt.Println("----------------")
 }
 
 /*

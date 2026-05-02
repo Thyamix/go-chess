@@ -32,6 +32,23 @@ func NewBoard() Board {
 }
 
 /*
+Generate a new board with no pieces on it.
+*/
+func NewEmptyBoard() Board {
+	board := [8]uint32{
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+		0b00000000000000000000000000000000,
+	}
+	return Board{board: board}
+}
+
+/*
 Checks all threats to check move legality and to make sure king is not threatened.
 */
 func (b *Board) CheckMoveLegality(move Move, isBlackTurn bool) bool {

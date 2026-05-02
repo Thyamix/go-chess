@@ -6,20 +6,6 @@ import (
 	"testing"
 )
 
-func NewEmptyTestBoard() Board {
-	board := [8]uint32{
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-		0b00000000000000000000000000000000,
-	}
-	return Board{board: board}
-}
-
 func TestNewBoard(t *testing.T) {
 	test := [64]Piece{
 		ROOK.White(), KNIGHT.White(), BISHOP.White(), KING.White(), QUEEN.White(), BISHOP.White(), KNIGHT.White(), ROOK.White(),
@@ -73,7 +59,7 @@ func TestSetPiece(t *testing.T) {
 
 	for test := range tests {
 		t.Run(test, func(t *testing.T) {
-			board := NewEmptyTestBoard()
+			board := NewEmptyBoard()
 			placements := tests[test]
 			for i := range placements {
 				placement := placements[i]
@@ -103,7 +89,7 @@ type TestPiece struct {
 }
 
 func MakeTestBoard(pieces []TestPiece, threats [][2]int) Board {
-	board := NewEmptyTestBoard()
+	board := NewEmptyBoard()
 	for i := range pieces {
 		piece := pieces[i]
 		board.SetPiece(piece.piece, piece.x, piece.y)

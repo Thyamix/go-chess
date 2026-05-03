@@ -170,126 +170,39 @@ func addThreats(board *Board, x int, y int, isBlackTurn bool) {
 		addKingThreats(board, x, y)
 		return
 	case BISHOP:
-		addBishopThreats(board, x, y)
+		addSlidingPieceThreats(board, x, y, false, true)
 		return
 	case ROOK:
-		addRookThreats(board, x, y)
+		addSlidingPieceThreats(board, x, y, true, false)
 		return
 	case QUEEN:
-		addQueenThreats(board, x, y)
+		addSlidingPieceThreats(board, x, y, true, true)
 		return
 	}
 	board.printThreats()
 }
 
-func addQueenThreats(board *Board, x int, y int) {
-	addBishopThreats(board, x, y)
-	addRookThreats(board, x, y)
-}
-
-func addRookThreats(board *Board, x int, y int) {
-	// Top
-	targetX := x
-	targetY := y + 1
-	finished := false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetY += 1
+func addSlidingPieceThreats(board *Board, x int, y int, orthogonal bool, diagonal bool) {
+	var offsets [][2]int
+	if orthogonal {
+		offsets = append(offsets, orthogonalOffsets...)
 	}
-	// Bottom
-	targetX = x
-	targetY = y - 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetY -= 1
+	if diagonal {
+		offsets = append(offsets, diagonalOffsets...)
 	}
-	// Right
-	targetX = x + 1
-	targetY = y
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
+	for i := range offsets {
+		targetX := x + offsets[i][0]
+		targetY := y + offsets[i][1]
+		for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
+			targetPiece, _ := board.GetPiece(targetX, targetY)
+			if targetPiece != EMPTY {
+				board.threats[targetY] |= (0b00000001 << targetX)
+				break
+			}
+			board.threats[targetY] |= (0b00000001 << targetX)
+			targetX += offsets[i][0]
+			targetY += offsets[i][1]
 		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetX += 1
-	}
-	// Left
-	targetX = x - 1
-	targetY = y
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetX -= 1
-	}
-}
-
-func addBishopThreats(board *Board, x int, y int) {
-	// Top right
-	targetX := x + 1
-	targetY := y + 1
-	finished := false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetX)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetX += 1
-		targetY += 1
-	}
-	// Bottom right
-	targetX = x + 1
-	targetY = y - 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetX += 1
-		targetY -= 1
-	}
-	// Top left
-	targetX = x - 1
-	targetY = y + 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetX -= 1
-		targetY += 1
-	}
-	// Botton left
-	targetX = x - 1
-	targetY = y - 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY {
-			finished = true
-		}
-		board.threats[targetY] |= (0b00000001 << targetX)
-		targetX -= 1
-		targetY -= 1
 	}
 }
 

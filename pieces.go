@@ -43,78 +43,21 @@ func addSlidingPieceMoves(board *Board, x int, y int, orthogonal bool, diagonal 
 				targetY += offsets[i][1]
 			}
 		}
-
 	}
 }
 
 func addKingMoves(board *Board, x int, y int, isBlack bool) {
-	// Right
-	move, err := createMove(x, y, x+1, y)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+1, y); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
+	directions := [][2]int{{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}}
+	for i := range directions {
+		targetX := x + directions[i][0]
+		targetY := y + directions[i][1]
+		if targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
+			targetPiece, _ := board.GetPiece(targetX, targetY)
+			move, err := createMove(x, y, targetX, targetY)
+			if targetPiece != EMPTY && targetPiece.IsBlack() == isBlack {
+				continue
 			}
-		}
-	}
-	// Top Right
-	move, err = createMove(x, y, x+1, y+1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+1, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Bottom Right
-	move, err = createMove(x, y, x+1, y-1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+1, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Left
-	move, err = createMove(x, y, x-1, y)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-1, y); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	} // Top Left
-	move, err = createMove(x, y, x-1, y+1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-1, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Bottom Left
-	move, err = createMove(x, y, x-1, y-1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-1, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Top
-	move, err = createMove(x, y, x, y+1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Bottom
-	move, err = createMove(x, y, x, y-1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
+			if err == nil && board.CheckMoveLegality(move, isBlack) {
 				board.possibleMoves = append(board.possibleMoves, move)
 			}
 		}
@@ -122,77 +65,21 @@ func addKingMoves(board *Board, x int, y int, isBlack bool) {
 }
 
 func addKnightMoves(board *Board, x int, y int, isBlack bool) {
-	// Right
-	move, err := createMove(x, y, x+2, y+1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+2, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
+	directions := [][2]int{{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}
+	for i := range directions {
+		targetX := x + directions[i][0]
+		targetY := y + directions[i][1]
+		if targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
+			targetPiece, _ := board.GetPiece(targetX, targetY)
+			move, err := createMove(x, y, targetX, targetY)
+			if targetPiece != EMPTY && targetPiece.IsBlack() == isBlack {
+				continue
+			}
+			if err == nil && board.CheckMoveLegality(move, isBlack) {
 				board.possibleMoves = append(board.possibleMoves, move)
 			}
 		}
 	}
-	move, err = createMove(x, y, x+2, y-1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+2, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Left
-	move, err = createMove(x, y, x-2, y+1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-2, y+1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	move, err = createMove(x, y, x-2, y-1)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-2, y-1); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Top
-	move, err = createMove(x, y, x+1, y+2)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+1, y+2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	move, err = createMove(x, y, x-1, y+2)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-1, y+2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	// Bottom
-	move, err = createMove(x, y, x+1, y-2)
-	if err == nil {
-		if piece, _ := board.GetPiece(x+1, y-2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				if board.CheckMoveLegality(move, isBlack) {
-					board.possibleMoves = append(board.possibleMoves, move)
-				}
-			}
-		}
-	}
-	move, err = createMove(x, y, x-1, y-2)
-	if err == nil {
-		if piece, _ := board.GetPiece(x-1, y-2); piece.IsBlack() != isBlack || piece.Type() == EMPTY {
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-
 }
 
 func addPawnMoves(board *Board, x int, y int, isBlack bool) {

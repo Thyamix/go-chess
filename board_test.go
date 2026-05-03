@@ -261,6 +261,7 @@ func TestAddPossibleMoves(t *testing.T) {
 		"Pawn Promotion":                {[]TestPiece{{PAWN.White(), 4, 6}, {KING.White(), 0, 0}}, false, []Move{0x4647, 0x0001, 0x0010, 0x0011}},
 		"Queen Mixed": {[]TestPiece{{QUEEN.White(), 3, 3}, {PAWN.White(), 3, 5}, {PAWN.Black(), 1, 2}, {KING.White(), 0, 0}}, false, []Move{
 			0x3330, 0x3331, 0x3332, 0x3334, 0x3303, 0x3313, 0x3323, 0x3343, 0x3353, 0x3363, 0x3373, 0x3322, 0x3311, 0x3344, 0x3355, 0x3366, 0x3377, 0x3306, 0x3315, 0x3324, 0x3342, 0x3351, 0x3360, 0x0010, 0x0011, 0x3536}},
+		"King Cannot Capture Protected Piece": {[]TestPiece{{KING.White(), 4, 4}, {KNIGHT.Black(), 5, 5}, {ROOK.Black(), 5, 0}}, false, []Move{0x4445, 0x4435, 0x4433}},
 	}
 
 	for test := range tests {

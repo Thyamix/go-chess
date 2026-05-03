@@ -122,7 +122,11 @@ func (b *Board) AddPossibleMoves(isBlackTurn bool) {
 				case KING:
 					addKingMoves(b, x, y, isBlackTurn)
 				case BISHOP:
-					addBishopMoves(b, x, y, isBlackTurn)
+					addSlidingPieceMoves(b, x, y, false, true, isBlackTurn)
+				case ROOK:
+					addSlidingPieceMoves(b, x, y, true, false, isBlackTurn)
+				case QUEEN:
+					addSlidingPieceMoves(b, x, y, true, true, isBlackTurn)
 				}
 			}
 

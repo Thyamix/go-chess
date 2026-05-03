@@ -14,74 +14,36 @@ const (
 	KING   Piece = 6
 )
 
-func addBishopMoves(board *Board, x int, y int, isBlack bool) {
-	// Top right
-	targetX := x + 1
-	targetY := y + 1
-	finished := false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
-			finished = true
-		} else {
-			move, err := createMove(x, y, targetX, targetY)
-			if err == nil {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-			targetX += 1
-			targetY += 1
-		}
+var (
+	orthogonalOffsets = [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+	diagonalOffsets   = [][2]int{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}}
+)
+
+func addSlidingPieceMoves(board *Board, x int, y int, orthogonal bool, diagonal bool, isBlack bool) {
+	var offsets [][2]int
+	if orthogonal {
+		offsets = append(offsets, orthogonalOffsets...)
 	}
-	// Bottom right
-	targetX = x + 1
-	targetY = y - 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
-			finished = true
-		} else {
-			move, err := createMove(x, y, targetX, targetY)
-			if err == nil {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-			targetX += 1
-			targetY -= 1
-		}
+	if diagonal {
+		offsets = append(offsets, diagonalOffsets...)
 	}
-	// Top left
-	targetX = x - 1
-	targetY = y + 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
-			finished = true
-		} else {
-			move, err := createMove(x, y, targetX, targetY)
-			if err == nil {
-				board.possibleMoves = append(board.possibleMoves, move)
+	for i := range offsets {
+		targetX := x + offsets[i][0]
+		targetY := y + offsets[i][1]
+		for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
+			targetPiece, _ := board.GetPiece(targetX, targetY)
+			if targetPiece != EMPTY && targetPiece.IsBlack() == isBlack {
+				break
+			} else {
+				move, err := createMove(x, y, targetX, targetY)
+				if err == nil && board.CheckMoveLegality(move, isBlack) {
+					board.possibleMoves = append(board.possibleMoves, move)
+				}
+				targetX += offsets[i][0]
+				targetY += offsets[i][1]
 			}
-			targetX -= 1
-			targetY += 1
 		}
-	}
-	// Botton left
-	targetX = x - 1
-	targetY = y - 1
-	finished = false
-	for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 && !finished {
-		targetPiece, _ := board.GetPiece(targetX, targetY)
-		if targetPiece != EMPTY || targetPiece.IsBlack() == isBlack {
-			finished = true
-		} else {
-			move, err := createMove(x, y, targetX, targetY)
-			if err == nil {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-			targetX -= 1
-			targetY -= 1
-		}
+
 	}
 }
 

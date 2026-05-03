@@ -246,13 +246,21 @@ func TestAddPossibleMoves(t *testing.T) {
 		expectedMoves []Move
 	}{
 		// All require king to check turn validity
-		"Single Pawn":              {[]TestPiece{{PAWN.Black(), 4, 6}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x7766, 0x7776, 0x7767}},
-		"Single Pawn Obstructed":   {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7766, 0x7776, 0x7767}},
-		"Single Pawn Take":         {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x4655, 0x7776, 0x7767}},
-		"Many Pawns":               {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644, 0x7776, 0x7767}},
-		"Single Knight":            {[]TestPiece{{KNIGHT.Black(), 4, 4}, {KING.Black(), 7, 7}}, true, []Move{0x4436, 0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x7766, 0x7776, 0x7767}},
-		"Single Knight Obstructed": {[]TestPiece{{KNIGHT.White(), 4, 4}, {PAWN.White(), 3, 6}, {PAWN.Black(), 3, 2}, {KING.White(), 7, 7}}, false, []Move{0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x3637, 0x7766, 0x7776, 0x7767}},
-		"Discover Check":           {[]TestPiece{{KING.White(), 0, 0}, {PAWN.White(), 1, 1}, {BISHOP.Black(), 4, 4}}, false, []Move{0x0001, 0x0010}},
+		"Single Pawn":                   {[]TestPiece{{PAWN.Black(), 4, 6}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x7766, 0x7776, 0x7767}},
+		"Single Pawn Obstructed":        {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7766, 0x7776, 0x7767}},
+		"Single Pawn Take":              {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x4655, 0x7776, 0x7767}},
+		"Many Pawns":                    {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644, 0x7776, 0x7767}},
+		"Single Knight":                 {[]TestPiece{{KNIGHT.Black(), 4, 4}, {KING.Black(), 7, 7}}, true, []Move{0x4436, 0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x7766, 0x7776, 0x7767}},
+		"Single Knight Obstructed":      {[]TestPiece{{KNIGHT.White(), 4, 4}, {PAWN.White(), 3, 6}, {PAWN.Black(), 3, 2}, {KING.White(), 7, 7}}, false, []Move{0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x3637, 0x7766, 0x7776, 0x7767}},
+		"Discover Check":                {[]TestPiece{{KING.White(), 0, 0}, {PAWN.White(), 1, 1}, {BISHOP.Black(), 4, 4}}, false, []Move{0x0001, 0x0010}},
+		"Rook Unobstructed":             {[]TestPiece{{ROOK.White(), 3, 3}, {KING.White(), 0, 0}}, false, []Move{0x3330, 0x3331, 0x3332, 0x3334, 0x3335, 0x3336, 0x3337, 0x3303, 0x3313, 0x3323, 0x3343, 0x3353, 0x3363, 0x3373, 0x0001, 0x0010, 0x0011}},
+		"Bishop Restricted by Friendly": {[]TestPiece{{BISHOP.Black(), 2, 2}, {PAWN.Black(), 4, 4}, {KING.Black(), 7, 7}}, true, []Move{0x2211, 0x2200, 0x2233, 0x2213, 0x2204, 0x2231, 0x2240, 0x7766, 0x7776, 0x7767, 0x4443}},
+		"Absolute Pin":                  {[]TestPiece{{KING.White(), 0, 0}, {ROOK.White(), 1, 1}, {BISHOP.Black(), 3, 3}}, false, []Move{0x0001, 0x0010}},
+		"King in Double Check":          {[]TestPiece{{KING.White(), 4, 4}, {KNIGHT.Black(), 3, 2}, {ROOK.Black(), 4, 0}}, false, []Move{0x4433, 0x4434, 0x4435, 0x4454, 0x4455}},
+		"Cornered Knight":               {[]TestPiece{{KNIGHT.White(), 0, 0}, {KING.White(), 7, 7}}, false, []Move{0x0012, 0x0021, 0x7766, 0x7767, 0x7776}},
+		"Pawn Promotion":                {[]TestPiece{{PAWN.White(), 4, 6}, {KING.White(), 0, 0}}, false, []Move{0x4647, 0x0001, 0x0010, 0x0011}},
+		"Queen Mixed": {[]TestPiece{{QUEEN.White(), 3, 3}, {PAWN.White(), 3, 5}, {PAWN.Black(), 1, 2}, {KING.White(), 0, 0}}, false, []Move{
+			0x3330, 0x3331, 0x3332, 0x3334, 0x3303, 0x3313, 0x3323, 0x3343, 0x3353, 0x3363, 0x3373, 0x3322, 0x3311, 0x3344, 0x3355, 0x3366, 0x3377, 0x3306, 0x3315, 0x3324, 0x3342, 0x3351, 0x3360, 0x0010, 0x0011, 0x3536}},
 	}
 
 	for test := range tests {

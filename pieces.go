@@ -1,7 +1,5 @@
 package gochess
 
-import "fmt"
-
 type Piece byte
 
 const (
@@ -14,244 +12,6 @@ const (
 	KING   Piece = 6
 )
 
-var (
-	orthogonalOffsets = [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
-	diagonalOffsets   = [][2]int{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}}
-)
-
-func addSlidingPieceMoves(board *Board, x int, y int, orthogonal bool, diagonal bool, isBlack bool) {
-	var offsets [][2]int
-	if orthogonal {
-		offsets = append(offsets, orthogonalOffsets...)
-	}
-	if diagonal {
-		offsets = append(offsets, diagonalOffsets...)
-	}
-	for i := range offsets {
-		targetX := x + offsets[i][0]
-		targetY := y + offsets[i][1]
-		for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
-			targetPiece, _ := board.GetPiece(targetX, targetY)
-			if targetPiece != EMPTY && targetPiece.IsBlack() == isBlack {
-				break
-			} else {
-				move, err := createMove(x, y, targetX, targetY)
-				if err == nil && board.CheckMoveLegality(move, isBlack) {
-					board.possibleMoves = append(board.possibleMoves, move)
-				}
-				targetX += offsets[i][0]
-				targetY += offsets[i][1]
-			}
-		}
-	}
-}
-
-func addKingMoves(board *Board, x int, y int, isBlack bool) {
-	directions := [][2]int{{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}}
-	for i := range directions {
-		targetX := x + directions[i][0]
-		targetY := y + directions[i][1]
-		if targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
-			targetPiece, _ := board.GetPiece(targetX, targetY)
-			move, err := createMove(x, y, targetX, targetY)
-			if targetPiece != EMPTY && targetPiece.IsBlack() == isBlack {
-				continue
-			}
-			if err == nil && board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-}
-
-func addKnightMoves(board *Board, x int, y int, isBlack bool) {
-	directions := [][2]int{{-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}}
-	for i := range directions {
-		targetX := x + directions[i][0]
-		targetY := y + directions[i][1]
-		if targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
-			targetPiece, _ := board.GetPiece(targetX, targetY)
-			move, err := createMove(x, y, targetX, targetY)
-			if targetPiece != EMPTY && targetPiece.IsBlack() == isBlack {
-				continue
-			}
-			if err == nil && board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-}
-
-func addPawnMoves(board *Board, x int, y int, isBlack bool) {
-	dir := 1
-	homerank := 1
-	if isBlack {
-		dir = -1
-		homerank = 6
-	}
-	if piece, _ := board.GetPiece(x, y+dir); piece == EMPTY {
-		if y+dir <= 7 && y+dir >= 0 {
-			move, err := createMove(x, y, x, y+dir)
-			if err != nil {
-				return
-			}
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-		if piece, _ := board.GetPiece(x, y+dir*2); piece == EMPTY && y == homerank {
-			if y+dir <= 7 && y+dir*2 >= 0 {
-				move, err := createMove(x, y, x, y+dir*2)
-				if err == nil {
-					if board.CheckMoveLegality(move, isBlack) {
-						board.possibleMoves = append(board.possibleMoves, move)
-					}
-				}
-			}
-		}
-	}
-	if piece, _ := board.GetPiece(x+1, y+dir); piece != EMPTY && piece.IsBlack() != isBlack {
-		if y+dir <= 7 && y+dir >= 0 {
-			move, err := createMove(x, y, x+1, y+dir)
-			if err != nil {
-				return
-			}
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-	if piece, _ := board.GetPiece(x-1, y+dir); piece != EMPTY && piece.IsBlack() != isBlack {
-		if y+dir <= 7 && y+dir >= 0 {
-			move, err := createMove(x, y, x-1, y+dir)
-			if err != nil {
-				return
-			}
-			if board.CheckMoveLegality(move, isBlack) {
-				board.possibleMoves = append(board.possibleMoves, move)
-			}
-		}
-	}
-}
-
-func createMove(pieceX int, pieceY int, targetX int, targetY int) (Move, error) {
-	var move Move
-	if pieceX > 7 || pieceX < 0 || pieceY > 7 || pieceY < 0 {
-		return move, fmt.Errorf("Piece not in play area")
-	}
-	if targetX > 7 || targetX < 0 || targetY > 7 || targetY < 0 {
-		return move, fmt.Errorf("Target not in play area")
-	}
-	move |= Move(pieceX << 12)
-	move |= Move(pieceY << 8)
-	move |= Move(targetX << 4)
-	move |= Move(targetY)
-	return move, nil
-}
-
-/*
-Added threats to the board for piece in location. Only if it is their turn
-*/
-func addThreats(board *Board, x int, y int, isBlackTurn bool) {
-	piece, _ := board.GetPiece(x, y)
-	if piece.IsBlack() == isBlackTurn {
-		return
-	}
-	switch piece.Type() {
-	case EMPTY:
-		return
-	case PAWN:
-		addPawnThreats(board, piece, x, y)
-		return
-	case KNIGHT:
-		addKnightThreats(board, x, y)
-		return
-	case KING:
-		addKingThreats(board, x, y)
-		return
-	case BISHOP:
-		addSlidingPieceThreats(board, x, y, false, true)
-		return
-	case ROOK:
-		addSlidingPieceThreats(board, x, y, true, false)
-		return
-	case QUEEN:
-		addSlidingPieceThreats(board, x, y, true, true)
-		return
-	}
-	board.printThreats()
-}
-
-func addSlidingPieceThreats(board *Board, x int, y int, orthogonal bool, diagonal bool) {
-	var offsets [][2]int
-	if orthogonal {
-		offsets = append(offsets, orthogonalOffsets...)
-	}
-	if diagonal {
-		offsets = append(offsets, diagonalOffsets...)
-	}
-	for i := range offsets {
-		targetX := x + offsets[i][0]
-		targetY := y + offsets[i][1]
-		for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
-			targetPiece, _ := board.GetPiece(targetX, targetY)
-			if targetPiece != EMPTY {
-				board.threats[targetY] |= (0b00000001 << targetX)
-				break
-			}
-			board.threats[targetY] |= (0b00000001 << targetX)
-			targetX += offsets[i][0]
-			targetY += offsets[i][1]
-		}
-	}
-}
-
-func addKingThreats(board *Board, x int, y int) {
-	var mask uint16
-	if y < 7 {
-		mask = (0b00000111 << x) >> 1
-		board.threats[y+1] |= uint8(mask)
-	}
-	if y > 0 {
-		mask = (0b00000111 << x) >> 1
-		board.threats[y-1] |= uint8(mask)
-	}
-	mask = (0b00000101 << x) >> 1
-	board.threats[y] |= uint8(mask)
-}
-
-func addKnightThreats(board *Board, x int, y int) {
-	var mask uint16
-	if y <= 5 {
-		mask = (0b00000101 << x) >> 1
-		board.threats[y+2] |= uint8(mask)
-	}
-	if y >= 2 {
-		mask = (0b00000101 << x) >> 1
-		board.threats[y-2] |= uint8(mask)
-	}
-	if y <= 6 {
-		mask = (0b00010001 << x) >> 2
-		board.threats[y+1] |= uint8(mask)
-	}
-	if y >= 1 {
-		mask = (0b00010001 << x) >> 2
-		board.threats[y-1] |= uint8(mask)
-	}
-}
-
-func addPawnThreats(board *Board, piece Piece, x int, y int) {
-	dir := 1
-	if piece.IsBlack() {
-		dir = -1
-	}
-	var mask uint16
-	mask = (0b00000101 << x) >> 1
-	if !(y+dir > 7 || y+dir < 0) {
-		board.threats[y+dir] |= uint8(mask)
-	}
-}
-
 /*
 Get the type of piece stripping extra bits and colour.
 */
@@ -260,31 +20,134 @@ func (p Piece) Type() Piece {
 }
 
 /*
+Returns a bool true if the piece is black, false if white or empty.
+*/
+func (p Piece) IsBlack() bool {
+	piece := p.strip()
+	piece &= 0b00001000
+	return piece > 0
+}
+
+/*
+Added threats to the board for piece in location. Only if it is their turn
+*/
+func addThreats(game *Game, x int, y int, isBlackTurn bool) {
+	piece, _ := game.GetPiece(x, y)
+	if piece.IsBlack() == isBlackTurn {
+		return
+	}
+	switch piece.Type() {
+	case EMPTY:
+		return
+	case PAWN:
+		addPawnThreats(game, piece, x, y)
+		return
+	case KNIGHT:
+		addKnightThreats(game, x, y)
+		return
+	case KING:
+		addKingThreats(game, x, y)
+		return
+	case BISHOP:
+		addSlidingPieceThreats(game, x, y, false, true)
+		return
+	case ROOK:
+		addSlidingPieceThreats(game, x, y, true, false)
+		return
+	case QUEEN:
+		addSlidingPieceThreats(game, x, y, true, true)
+		return
+	}
+	game.printThreats()
+}
+
+func addSlidingPieceThreats(game *Game, x int, y int, orthogonal bool, diagonal bool) {
+	var offsets [][2]int
+	if orthogonal {
+		offsets = append(offsets, orthogonalOffsets...)
+	}
+	if diagonal {
+		offsets = append(offsets, diagonalOffsets...)
+	}
+	for i := range offsets {
+		targetX := x + offsets[i][0]
+		targetY := y + offsets[i][1]
+		for targetY <= 7 && targetY >= 0 && targetX <= 7 && targetX >= 0 {
+			targetPiece, _ := game.GetPiece(targetX, targetY)
+			if targetPiece != EMPTY {
+				game.threats[targetY] |= (0b00000001 << targetX)
+				break
+			}
+			game.threats[targetY] |= (0b00000001 << targetX)
+			targetX += offsets[i][0]
+			targetY += offsets[i][1]
+		}
+	}
+}
+
+func addKingThreats(game *Game, x int, y int) {
+	var mask uint16
+	if y < 7 {
+		mask = (0b00000111 << x) >> 1
+		game.threats[y+1] |= uint8(mask)
+	}
+	if y > 0 {
+		mask = (0b00000111 << x) >> 1
+		game.threats[y-1] |= uint8(mask)
+	}
+	mask = (0b00000101 << x) >> 1
+	game.threats[y] |= uint8(mask)
+}
+
+func addKnightThreats(game *Game, x int, y int) {
+	var mask uint16
+	if y <= 5 {
+		mask = (0b00000101 << x) >> 1
+		game.threats[y+2] |= uint8(mask)
+	}
+	if y >= 2 {
+		mask = (0b00000101 << x) >> 1
+		game.threats[y-2] |= uint8(mask)
+	}
+	if y <= 6 {
+		mask = (0b00010001 << x) >> 2
+		game.threats[y+1] |= uint8(mask)
+	}
+	if y >= 1 {
+		mask = (0b00010001 << x) >> 2
+		game.threats[y-1] |= uint8(mask)
+	}
+}
+
+func addPawnThreats(game *Game, piece Piece, x int, y int) {
+	dir := 1
+	if piece.IsBlack() {
+		dir = -1
+	}
+	var mask uint16
+	mask = (0b00000101 << x) >> 1
+	if !(y+dir > 7 || y+dir < 0) {
+		game.threats[y+dir] |= uint8(mask)
+	}
+}
+
+/*
 Returns black version of the piece.
 */
-func (p Piece) Black() Piece {
+func (p Piece) black() Piece {
 	return p | 0b00001000
 }
 
 /*
 Returns white version of the piece.
 */
-func (p Piece) White() Piece {
+func (p Piece) white() Piece {
 	return p & 0b11110111
-}
-
-/*
-Returns a bool true if the piece is black, false if white or empty.
-*/
-func (p Piece) IsBlack() bool {
-	piece := p.Strip()
-	piece &= 0b00001000
-	return piece > 0
 }
 
 /*
 Returns piece without the 4 extra bits.
 */
-func (p Piece) Strip() Piece {
+func (p Piece) strip() Piece {
 	return p & 0b00001111
 }

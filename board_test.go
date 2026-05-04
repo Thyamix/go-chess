@@ -6,22 +6,22 @@ import (
 	"testing"
 )
 
-func TestNewBoard(t *testing.T) {
+func TestNewGame(t *testing.T) {
 	test := [64]Piece{
-		ROOK.White(), KNIGHT.White(), BISHOP.White(), KING.White(), QUEEN.White(), BISHOP.White(), KNIGHT.White(), ROOK.White(),
-		PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(), PAWN.White(),
+		ROOK.white(), KNIGHT.white(), BISHOP.white(), KING.white(), QUEEN.white(), BISHOP.white(), KNIGHT.white(), ROOK.white(),
+		PAWN.white(), PAWN.white(), PAWN.white(), PAWN.white(), PAWN.white(), PAWN.white(), PAWN.white(), PAWN.white(),
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
 		EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
-		PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(), PAWN.Black(),
-		ROOK.Black(), KNIGHT.Black(), BISHOP.Black(), KING.Black(), QUEEN.Black(), BISHOP.Black(), KNIGHT.Black(), ROOK.Black(),
+		PAWN.black(), PAWN.black(), PAWN.black(), PAWN.black(), PAWN.black(), PAWN.black(), PAWN.black(), PAWN.black(),
+		ROOK.black(), KNIGHT.black(), BISHOP.black(), KING.black(), QUEEN.black(), BISHOP.black(), KNIGHT.black(), ROOK.black(),
 	}
-	t.Run("New Board", func(t *testing.T) {
-		board := NewBoard()
+	t.Run("New Game", func(t *testing.T) {
+		game := NewGame(NewBoard())
 		for y := range 8 {
 			for x := range 8 {
-				piece, _ := board.GetPiece(x, y)
+				piece, _ := game.GetPiece(x, y)
 				if piece != test[y*8+x] {
 					t.Errorf("got %v wanted %v on x:%v y:%v", piece, test[y*8+x], x, y)
 				}
@@ -39,31 +39,31 @@ func TestSetPiece(t *testing.T) {
 
 	tests := map[string][]TestPlacement{
 		"Single Black Pawn": {
-			{PAWN.Black(), [2]int{2, 2}, true},
+			{PAWN.black(), [2]int{2, 2}, true},
 		},
 		"Double Pawn": {
-			{PAWN.White(), [2]int{2, 4}, true},
-			{PAWN.Black(), [2]int{6, 1}, true},
+			{PAWN.white(), [2]int{2, 4}, true},
+			{PAWN.black(), [2]int{6, 1}, true},
 		},
 		"Single White Knight": {
-			{KNIGHT.White(), [2]int{7, 0}, true},
+			{KNIGHT.white(), [2]int{7, 0}, true},
 		},
 		"Single Black King": {
-			{KING.Black(), [2]int{2, 4}, true},
+			{KING.black(), [2]int{2, 4}, true},
 		},
 		"Replace Rook with Black Queen": {
-			{ROOK.White(), [2]int{4, 4}, false},
-			{QUEEN.Black(), [2]int{4, 4}, true},
+			{ROOK.white(), [2]int{4, 4}, false},
+			{QUEEN.black(), [2]int{4, 4}, true},
 		},
 	}
 
 	for test := range tests {
 		t.Run(test, func(t *testing.T) {
-			board := NewEmptyBoard()
+			board := NewGame(NewEmptyBoard())
 			placements := tests[test]
 			for i := range placements {
 				placement := placements[i]
-				board.SetPiece(placement.piece, placement.pos[0], placement.pos[1])
+				board.setPiece(placement.piece, placement.pos[0], placement.pos[1])
 			}
 			for i := range placements {
 				placement := placements[i]
@@ -88,24 +88,24 @@ type TestPiece struct {
 	y     int
 }
 
-func MakeTestBoard(pieces []TestPiece, threats [][2]int) Board {
-	board := NewEmptyBoard()
+func MakeGameGame(pieces []TestPiece, threats [][2]int) Game {
+	game := NewGame(NewEmptyBoard())
 	for i := range pieces {
 		piece := pieces[i]
-		board.SetPiece(piece.piece, piece.x, piece.y)
+		game.setPiece(piece.piece, piece.x, piece.y)
 		if piece.piece.Type() == KING {
 			if piece.piece.IsBlack() {
-				board.blackKing = [2]int{piece.x, piece.y}
+				game.blackKing = [2]int{piece.x, piece.y}
 			} else {
-				board.whiteKing = [2]int{piece.x, piece.y}
+				game.whiteKing = [2]int{piece.x, piece.y}
 			}
 		}
 	}
 	for i := range threats {
 		coords := threats[i]
-		board.threats[coords[1]] |= 0b00000001 << coords[0]
+		game.threats[coords[1]] |= 0b00000001 << coords[0]
 	}
-	return board
+	return game
 }
 
 func TestGetThreats(t *testing.T) {
@@ -115,54 +115,54 @@ func TestGetThreats(t *testing.T) {
 		expectedThreats [][2]int
 	}{
 		"Single Pawn": {
-			[]TestPiece{{PAWN.Black(), 4, 4}}, false, [][2]int{{3, 3}, {5, 3}}},
+			[]TestPiece{{PAWN.black(), 4, 4}}, false, [][2]int{{3, 3}, {5, 3}}},
 		"Single Pawn Edge": {
-			[]TestPiece{{PAWN.White(), 7, 3}}, true, [][2]int{{6, 4}}},
+			[]TestPiece{{PAWN.white(), 7, 3}}, true, [][2]int{{6, 4}}},
 		"Single Pawn Edge 2": {
-			[]TestPiece{{PAWN.White(), 6, 3}}, true, [][2]int{{5, 4}, {7, 4}}},
+			[]TestPiece{{PAWN.white(), 6, 3}}, true, [][2]int{{5, 4}, {7, 4}}},
 		"Single Pawn Edge Top": {
-			[]TestPiece{{PAWN.White(), 6, 7}}, true, [][2]int{}},
+			[]TestPiece{{PAWN.white(), 6, 7}}, true, [][2]int{}},
 		"Single Pawn Edge Bottom": {
-			[]TestPiece{{PAWN.Black(), 3, 0}}, false, [][2]int{}},
+			[]TestPiece{{PAWN.black(), 3, 0}}, false, [][2]int{}},
 		"Double Pawn": {
-			[]TestPiece{{PAWN.Black(), 4, 4}, {PAWN.Black(), 5, 4}}, false, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
+			[]TestPiece{{PAWN.black(), 4, 4}, {PAWN.black(), 5, 4}}, false, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
 		"Double Pawn with Attack": {
-			[]TestPiece{{PAWN.Black(), 4, 4}, {PAWN.Black(), 5, 4}, {PAWN.White(), 5, 3}}, false, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
+			[]TestPiece{{PAWN.black(), 4, 4}, {PAWN.black(), 5, 4}, {PAWN.white(), 5, 3}}, false, [][2]int{{3, 3}, {4, 3}, {5, 3}, {6, 3}}},
 		"Single Knight Corner": {
-			[]TestPiece{{KNIGHT.White(), 1, 0}}, true, [][2]int{{0, 2}, {2, 2}, {3, 1}}},
+			[]TestPiece{{KNIGHT.white(), 1, 0}}, true, [][2]int{{0, 2}, {2, 2}, {3, 1}}},
 		"Single Knight Middle": {
-			[]TestPiece{{KNIGHT.White(), 5, 5}}, true, [][2]int{{4, 3}, {6, 3}, {3, 4}, {3, 6}, {4, 7}, {6, 7}, {7, 6}, {7, 4}}},
+			[]TestPiece{{KNIGHT.white(), 5, 5}}, true, [][2]int{{4, 3}, {6, 3}, {3, 4}, {3, 6}, {4, 7}, {6, 7}, {7, 6}, {7, 4}}},
 		"Single King Middle": {
-			[]TestPiece{{KING.White(), 5, 5}}, true, [][2]int{{4, 5}, {6, 5}, {6, 6}, {5, 6}, {4, 6}, {6, 4}, {5, 4}, {4, 4}}},
+			[]TestPiece{{KING.white(), 5, 5}}, true, [][2]int{{4, 5}, {6, 5}, {6, 6}, {5, 6}, {4, 6}, {6, 4}, {5, 4}, {4, 4}}},
 		"Single King Top": {
-			[]TestPiece{{KING.White(), 5, 7}}, true, [][2]int{{4, 7}, {6, 7}, {4, 6}, {5, 6}, {6, 6}}},
+			[]TestPiece{{KING.white(), 5, 7}}, true, [][2]int{{4, 7}, {6, 7}, {4, 6}, {5, 6}, {6, 6}}},
 		"Single King Bottom Corner": {
-			[]TestPiece{{KING.White(), 0, 0}}, true, [][2]int{{0, 1}, {1, 1}, {1, 0}}},
+			[]TestPiece{{KING.white(), 0, 0}}, true, [][2]int{{0, 1}, {1, 1}, {1, 0}}},
 		"Single Bishop Bottom Left Corner": {
-			[]TestPiece{{BISHOP.Black(), 0, 0}}, false, [][2]int{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}}},
+			[]TestPiece{{BISHOP.black(), 0, 0}}, false, [][2]int{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}}},
 		"Single Bishop Top Right Corner": {
-			[]TestPiece{{BISHOP.Black(), 7, 7}}, false, [][2]int{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {0, 0}}},
+			[]TestPiece{{BISHOP.black(), 7, 7}}, false, [][2]int{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {0, 0}}},
 		"Single Bishop Center": {
-			[]TestPiece{{BISHOP.Black(), 4, 4}}, false, [][2]int{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {5, 5}, {6, 6}, {7, 7},
+			[]TestPiece{{BISHOP.black(), 4, 4}}, false, [][2]int{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {5, 5}, {6, 6}, {7, 7},
 				{5, 3}, {6, 2}, {7, 1}, {2, 6}, {1, 7}, {2, 6}, {3, 5}}},
 		"Single Bishop Center Obstructed": {
-			[]TestPiece{{BISHOP.White(), 4, 4}, {ROOK.Black(), 6, 6}, {PAWN.Black(), 6, 2}}, true, [][2]int{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {5, 5}, {6, 6}, {5, 3}, {6, 2}, {1, 7}, {2, 6}, {2, 6}, {3, 5}}},
+			[]TestPiece{{BISHOP.white(), 4, 4}, {ROOK.black(), 6, 6}, {PAWN.black(), 6, 2}}, true, [][2]int{{0, 0}, {1, 1}, {2, 2}, {3, 3}, {5, 5}, {6, 6}, {5, 3}, {6, 2}, {1, 7}, {2, 6}, {2, 6}, {3, 5}}},
 		"Single Rook Center": {
-			[]TestPiece{{ROOK.Black(), 3, 3}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}}},
+			[]TestPiece{{ROOK.black(), 3, 3}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}}},
 		"Single Rook Center Obstructed": {
-			[]TestPiece{{ROOK.Black(), 3, 3}, {KNIGHT.White(), 3, 5}, {KNIGHT.White(), 6, 3}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}}},
+			[]TestPiece{{ROOK.black(), 3, 3}, {KNIGHT.white(), 3, 5}, {KNIGHT.white(), 6, 3}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}}},
 		"Single Queen Center": {
-			[]TestPiece{{QUEEN.White(), 3, 3}}, true, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
+			[]TestPiece{{QUEEN.white(), 3, 3}}, true, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {3, 6}, {3, 7}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {7, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
 		"Single Queen Center Obstructed": {
-			[]TestPiece{{QUEEN.Black(), 3, 3}, {KNIGHT.White(), 3, 5}, {KNIGHT.White(), 6, 3}, {ROOK.White(), 4, 4}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {4, 4}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
+			[]TestPiece{{QUEEN.black(), 3, 3}, {KNIGHT.white(), 3, 5}, {KNIGHT.white(), 6, 3}, {ROOK.white(), 4, 4}}, false, [][2]int{{3, 0}, {3, 1}, {3, 2}, {3, 4}, {3, 5}, {0, 3}, {1, 3}, {2, 3}, {4, 3}, {5, 3}, {6, 3}, {4, 4}, {2, 2}, {1, 1}, {0, 0}, {2, 4}, {1, 5}, {0, 6}, {4, 2}, {5, 1}, {6, 0}}},
 	}
 
 	for test := range tests {
 		t.Run(test, func(t *testing.T) {
-			expected := MakeTestBoard(tests[test].pieces, tests[test].expectedThreats)
-			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+			expected := MakeGameGame(tests[test].pieces, tests[test].expectedThreats)
+			got := MakeGameGame(tests[test].pieces, [][2]int{})
 
-			got.GetThreats(tests[test].isBlackTurn)
+			got.getThreats(tests[test].isBlackTurn)
 
 			if got.threats != expected.threats {
 				// Display threat board before error
@@ -198,17 +198,17 @@ func TestExecMove(t *testing.T) {
 		move          Move
 		expectedPiece TestPiece
 	}{
-		"Pawn":             {[]TestPiece{{PAWN.Black(), 4, 6}}, 0x4645, TestPiece{PAWN.Black(), 4, 5}},
-		"Knight":           {[]TestPiece{{KNIGHT.Black(), 3, 3}}, 0x3354, TestPiece{KNIGHT.Black(), 5, 4}},
-		"Bishop take Rook": {[]TestPiece{{BISHOP.Black(), 5, 5}, {ROOK.White(), 1, 1}}, 0x5511, TestPiece{BISHOP.Black(), 1, 1}},
+		"Pawn":             {[]TestPiece{{PAWN.black(), 4, 6}}, 0x4645, TestPiece{PAWN.black(), 4, 5}},
+		"Knight":           {[]TestPiece{{KNIGHT.black(), 3, 3}}, 0x3354, TestPiece{KNIGHT.black(), 5, 4}},
+		"Bishop take Rook": {[]TestPiece{{BISHOP.black(), 5, 5}, {ROOK.white(), 1, 1}}, 0x5511, TestPiece{BISHOP.black(), 1, 1}},
 	}
 	for test := range tests {
 		t.Run(test, func(t *testing.T) {
-			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+			got := MakeGameGame(tests[test].pieces, [][2]int{})
 
-			got.ExecMove(tests[test].move)
+			got.execMove(tests[test].move)
 
-			if piece, _ := got.GetPiece(tests[test].expectedPiece.x, tests[test].expectedPiece.y); piece != tests[test].expectedPiece.piece.Strip() {
+			if piece, _ := got.GetPiece(tests[test].expectedPiece.x, tests[test].expectedPiece.y); piece != tests[test].expectedPiece.piece.strip() {
 				t.Errorf("got\n%v\n but wanted\n%v", piece, tests[test].expectedPiece.piece)
 			}
 		})
@@ -221,57 +221,19 @@ func TestIsInCheck(t *testing.T) {
 		isBlackTurn bool
 		expected    bool
 	}{
-		"Pawn":   {[]TestPiece{{PAWN.Black(), 4, 6}, {KING.White(), 3, 5}}, false, true},
-		"Knight": {[]TestPiece{{KNIGHT.Black(), 3, 3}, {KING.White(), 3, 5}}, false, false},
-		"Rook":   {[]TestPiece{{ROOK.White(), 5, 2}, {KING.Black(), 7, 2}}, true, true},
+		"Pawn":   {[]TestPiece{{PAWN.black(), 4, 6}, {KING.white(), 3, 5}}, false, true},
+		"Knight": {[]TestPiece{{KNIGHT.black(), 3, 3}, {KING.white(), 3, 5}}, false, false},
+		"Rook":   {[]TestPiece{{ROOK.white(), 5, 2}, {KING.black(), 7, 2}}, true, true},
 	}
 	for test := range tests {
 		t.Run(test, func(t *testing.T) {
-			got := MakeTestBoard(tests[test].pieces, [][2]int{})
+			got := MakeGameGame(tests[test].pieces, [][2]int{})
 
-			got.GetThreats(tests[test].isBlackTurn)
-			check := got.IsInCheck(tests[test].isBlackTurn)
+			got.getThreats(tests[test].isBlackTurn)
+			check := got.isInCheck(tests[test].isBlackTurn)
 
 			if check != tests[test].expected {
 				t.Errorf("got\n%v\n but wanted\n%v", check, tests[test].expected)
-			}
-		})
-	}
-}
-
-func TestAddPossibleMoves(t *testing.T) {
-	tests := map[string]struct {
-		pieces        []TestPiece
-		isBlackTurn   bool
-		expectedMoves []Move
-	}{
-		// All require king to check turn validity
-		"Single Pawn":                   {[]TestPiece{{PAWN.Black(), 4, 6}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x7766, 0x7776, 0x7767}},
-		"Single Pawn Obstructed":        {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 4, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7766, 0x7776, 0x7767}},
-		"Single Pawn Take":              {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x4645, 0x4644, 0x4655, 0x7776, 0x7767}},
-		"Many Pawns":                    {[]TestPiece{{PAWN.Black(), 4, 6}, {PAWN.Black(), 5, 6}, {PAWN.Black(), 6, 6}, {PAWN.Black(), 7, 4}, {PAWN.White(), 5, 5}, {KING.Black(), 7, 7}}, true, []Move{0x7473, 0x6665, 0x6664, 0x6655, 0x4655, 0x4645, 0x4644, 0x7776, 0x7767}},
-		"Single Knight":                 {[]TestPiece{{KNIGHT.Black(), 4, 4}, {KING.Black(), 7, 7}}, true, []Move{0x4436, 0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x7766, 0x7776, 0x7767}},
-		"Single Knight Obstructed":      {[]TestPiece{{KNIGHT.White(), 4, 4}, {PAWN.White(), 3, 6}, {PAWN.Black(), 3, 2}, {KING.White(), 7, 7}}, false, []Move{0x4456, 0x4432, 0x4452, 0x4425, 0x4423, 0x4463, 0x4465, 0x3637, 0x7766, 0x7776, 0x7767}},
-		"Discover Check":                {[]TestPiece{{KING.White(), 0, 0}, {PAWN.White(), 1, 1}, {BISHOP.Black(), 4, 4}}, false, []Move{0x0001, 0x0010}},
-		"Rook Unobstructed":             {[]TestPiece{{ROOK.White(), 3, 3}, {KING.White(), 0, 0}}, false, []Move{0x3330, 0x3331, 0x3332, 0x3334, 0x3335, 0x3336, 0x3337, 0x3303, 0x3313, 0x3323, 0x3343, 0x3353, 0x3363, 0x3373, 0x0001, 0x0010, 0x0011}},
-		"Bishop Restricted by Friendly": {[]TestPiece{{BISHOP.Black(), 2, 2}, {PAWN.Black(), 4, 4}, {KING.Black(), 7, 7}}, true, []Move{0x2211, 0x2200, 0x2233, 0x2213, 0x2204, 0x2231, 0x2240, 0x7766, 0x7776, 0x7767, 0x4443}},
-		"Absolute Pin":                  {[]TestPiece{{KING.White(), 0, 0}, {ROOK.White(), 1, 1}, {BISHOP.Black(), 3, 3}}, false, []Move{0x0001, 0x0010}},
-		"King in Double Check":          {[]TestPiece{{KING.White(), 4, 4}, {KNIGHT.Black(), 3, 2}, {ROOK.Black(), 4, 0}}, false, []Move{0x4433, 0x4434, 0x4435, 0x4454, 0x4455}},
-		"Cornered Knight":               {[]TestPiece{{KNIGHT.White(), 0, 0}, {KING.White(), 7, 7}}, false, []Move{0x0012, 0x0021, 0x7766, 0x7767, 0x7776}},
-		"Pawn Promotion":                {[]TestPiece{{PAWN.White(), 4, 6}, {KING.White(), 0, 0}}, false, []Move{0x4647, 0x0001, 0x0010, 0x0011}},
-		"Queen Mixed": {[]TestPiece{{QUEEN.White(), 3, 3}, {PAWN.White(), 3, 5}, {PAWN.Black(), 1, 2}, {KING.White(), 0, 0}}, false, []Move{
-			0x3330, 0x3331, 0x3332, 0x3334, 0x3303, 0x3313, 0x3323, 0x3343, 0x3353, 0x3363, 0x3373, 0x3322, 0x3311, 0x3344, 0x3355, 0x3366, 0x3377, 0x3306, 0x3315, 0x3324, 0x3342, 0x3351, 0x3360, 0x0010, 0x0011, 0x3536}},
-		"King Cannot Capture Protected Piece": {[]TestPiece{{KING.White(), 4, 4}, {KNIGHT.Black(), 5, 5}, {ROOK.Black(), 5, 0}}, false, []Move{0x4445, 0x4435, 0x4433}},
-	}
-
-	for test := range tests {
-		t.Run(test, func(t *testing.T) {
-			got := MakeTestBoard(tests[test].pieces, [][2]int{})
-
-			got.AddPossibleMoves(tests[test].isBlackTurn)
-
-			if !movesMatch(got.possibleMoves, tests[test].expectedMoves) {
-				t.Errorf("got\n%v\n but wanted\n%v", got.possibleMoves, tests[test].expectedMoves)
 			}
 		})
 	}

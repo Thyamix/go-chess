@@ -7,18 +7,18 @@ func TestPieceGetType(t *testing.T) {
 		piece    Piece
 		expected Piece
 	}{
-		"Pawn - White":   {PAWN.White(), PAWN},
-		"Knight - White": {KNIGHT.White(), KNIGHT},
-		"Bishop - White": {BISHOP.White(), BISHOP},
-		"Rook - White":   {ROOK.White(), ROOK},
-		"Queen - White":  {QUEEN.White(), QUEEN},
-		"King - White":   {KING.White(), KING},
-		"Pawn - Black":   {PAWN.Black(), PAWN},
-		"Knight - Black": {KNIGHT.Black(), KNIGHT},
-		"Bishop - Black": {BISHOP.Black(), BISHOP},
-		"Rook - Black":   {ROOK.Black(), ROOK},
-		"Queen - Black":  {QUEEN.Black(), QUEEN},
-		"King - Black":   {KING.Black(), KING},
+		"Pawn - White":   {PAWN.white(), PAWN},
+		"Knight - White": {KNIGHT.white(), KNIGHT},
+		"Bishop - White": {BISHOP.white(), BISHOP},
+		"Rook - White":   {ROOK.white(), ROOK},
+		"Queen - White":  {QUEEN.white(), QUEEN},
+		"King - White":   {KING.white(), KING},
+		"Pawn - Black":   {PAWN.black(), PAWN},
+		"Knight - Black": {KNIGHT.black(), KNIGHT},
+		"Bishop - Black": {BISHOP.black(), BISHOP},
+		"Rook - Black":   {ROOK.black(), ROOK},
+		"Queen - Black":  {QUEEN.black(), QUEEN},
+		"King - Black":   {KING.black(), KING},
 	}
 
 	for name, test := range tests {
@@ -35,10 +35,10 @@ func TestIsBlack(t *testing.T) {
 		piece    Piece
 		expected bool
 	}{
-		{PAWN.Black(), true},
-		{KING.Black(), true},
-		{BISHOP.White(), false},
-		{KNIGHT.White(), false},
+		{PAWN.black(), true},
+		{KING.black(), true},
+		{BISHOP.white(), false},
+		{KNIGHT.white(), false},
 	}
 
 	for i := range tests {

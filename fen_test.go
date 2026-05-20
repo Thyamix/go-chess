@@ -148,7 +148,10 @@ func TestGetPosition(t *testing.T) {
 
 	for test := range tests {
 		t.Run(test, func(t *testing.T) {
-			position := tests[test].fen.getPosition()
+			position, err := tests[test].fen.getPosition()
+			if err != nil {
+				t.Error(err)
+			}
 			tests[test].check(t, position)
 		})
 	}

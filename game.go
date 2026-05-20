@@ -4,23 +4,31 @@ type Game struct {
 	position *Position
 }
 
-type GameOption func(options *Game)
+type GameOption func(options *Game) error
 
 func BoardLayout(fen FEN) GameOption {
-	option := func(options *Game) {
-		options.position = fen.getPosition()
+	position, err := fen.getPosition()
+	option := func(options *Game) error {
+		if err != nil {
+			return err
+		}
+		options.position = position
+		return nil
 	}
 	return option
 }
 
-func NewGame(opts ...GameOption) *Game {
+func NewGame(opts ...GameOption) (*Game, error) {
 	game := &Game{
 		position: newPosition(),
 	}
 
 	for _, opt := range opts {
-		opt(game)
+		err := opt(game)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return game
+	return game, nil
 }

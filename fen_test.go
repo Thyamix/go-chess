@@ -49,16 +49,16 @@ func TestGetPosition(t *testing.T) {
 		"starting position - white knights": {
 			fen: StartingPositionFEN,
 			check: func(t *testing.T, position *Position) {
-				if position.knight[WHITE] != 0x0000000000000042 {
-					t.Errorf("white knight: got %016X, want 0x0000000000000042", position.knight[WHITE])
+				if position.knights[WHITE] != 0x0000000000000042 {
+					t.Errorf("white knight: got %016X, want 0x0000000000000042", position.knights[WHITE])
 				}
 			},
 		},
 		"starting position - black knights": {
 			fen: StartingPositionFEN,
 			check: func(t *testing.T, position *Position) {
-				if position.knight[BLACK] != 0x4200000000000000 {
-					t.Errorf("black knight: got %016X, want 0x4200000000000000", position.knight[BLACK])
+				if position.knights[BLACK] != 0x4200000000000000 {
+					t.Errorf("black knight: got %016X, want 0x4200000000000000", position.knights[BLACK])
 				}
 			},
 		},
@@ -131,6 +131,18 @@ func TestGetPosition(t *testing.T) {
 			check: func(t *testing.T, position *Position) {
 				if position.kings[BLACK] != 0x0800000000000000 {
 					t.Errorf("black kings: got %016X, want 0x0800000000000000", position.kings[BLACK])
+				}
+			},
+		},
+
+		// Mailbox
+
+		"starting position - mailbox": {
+			fen: StartingPositionFEN,
+			check: func(t *testing.T, position *Position) {
+				expected := [64]Piece{13, 11, 11, 13, 15, 11, 11, 13, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 3, 5, 6, 3, 2, 4}
+				if position.pieces != expected {
+					t.Errorf("mailbox: got %v, want %v", position.pieces, expected)
 				}
 			},
 		},

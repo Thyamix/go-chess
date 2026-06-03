@@ -8,7 +8,7 @@ const (
 type Position struct {
 	// Bitboards
 	pawns   [2]uint64
-	knight  [2]uint64
+	knights [2]uint64
 	bishops [2]uint64
 	rooks   [2]uint64
 	queens  [2]uint64
@@ -20,8 +20,7 @@ type Position struct {
 	board [2]uint64 // All the pieces
 
 	// Mailbox
-	whitePieces [16]Piece
-	blackPieces [16]Piece
+	pieces [64]Piece
 
 	// other
 	halfmoves uint8

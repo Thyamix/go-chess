@@ -25,12 +25,33 @@ func (f FEN) getPosition() (*Position, error) {
 
 	pos := &Position{}
 
+	// Position
+
 	for i, rank := range ranks {
 		err := parseRank(rank, i, pos)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	pos.board = pos.white | pos.black
+
+	// Active Colour
+
+	switch parts[1] {
+	case "b":
+		pos.isWhiteTurn = true
+	case "w":
+		pos.isWhiteTurn = false
+	default:
+		return nil, fmt.Errorf("Active color is invalid, only accept 'w' or 'b'")
+	}
+
+	// Castle Rights
+
+	// En Passent
+
+	// Halfmove Clock
 
 	return pos, nil
 }
@@ -41,8 +62,10 @@ func parseRank(rankString string, rankIndex int, pos *Position) error {
 	index := 0 + rankIndex*8
 	for _, pieceRune := range pieces {
 		isWhite := unicode.IsUpper(pieceRune)
+		colourBoard := &pos.black
 		side := BLACK
 		if isWhite {
+			colourBoard = &pos.white
 			side = WHITE
 		}
 		space := 1
@@ -54,27 +77,27 @@ func parseRank(rankString string, rankIndex int, pos *Position) error {
 		case 'p':
 			piece = PAWN
 			pos.pawns[side] = pos.pawns[side] | 0x01<<shift
-			pos.board[side] = pos.board[side] | 0x01<<shift
+			*colourBoard = *colourBoard | 0x01<<shift
 		case 'n':
 			piece = KNIGHT
 			pos.knights[side] = pos.knights[side] | 0x01<<shift
-			pos.board[side] = pos.board[side] | 0x01<<shift
+			*colourBoard = *colourBoard | 0x01<<shift
 		case 'b':
 			piece = BISHOP
 			pos.bishops[side] = pos.bishops[side] | 0x01<<shift
-			pos.board[side] = pos.board[side] | 0x01<<shift
+			*colourBoard = *colourBoard | 0x01<<shift
 		case 'r':
 			piece = ROOK
 			pos.rooks[side] = pos.rooks[side] | 0x01<<shift
-			pos.board[side] = pos.board[side] | 0x01<<shift
+			*colourBoard = *colourBoard | 0x01<<shift
 		case 'q':
 			piece = QUEEN
 			pos.queens[side] = pos.queens[side] | 0x01<<shift
-			pos.board[side] = pos.board[side] | 0x01<<shift
+			*colourBoard = *colourBoard | 0x01<<shift
 		case 'k':
 			piece = KING
 			pos.kings[side] = pos.kings[side] | 0x01<<shift
-			pos.board[side] = pos.board[side] | 0x01<<shift
+			*colourBoard = *colourBoard | 0x01<<shift
 		default:
 			space = int(pieceRune - '0')
 			if space > 8 {

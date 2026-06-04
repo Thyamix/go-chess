@@ -1,12 +1,18 @@
 package gochess
 
+type Color int8
+type CastleType int8
+
 const (
-	WHITE uint8 = 0
-	BLACK uint8 = 1
+	white Color = iota
+	black
+
+	shortCastle CastleType = iota
+	longCastle
 )
 
 // Holds all data held in fen
-type Position struct {
+type State struct {
 	// Bitboards
 	pawns   [2]uint64
 	knights [2]uint64
@@ -21,20 +27,36 @@ type Position struct {
 	board uint64 // All the pieces
 
 	// Mailbox
-	pieces [64]Piece
+	Pieces [64]Piece
 
 	// other
-	isWhiteTurn bool
+	IsWhiteTurn bool
 	halfmoves   uint8
 	castle      byte  // Uses first 4 bit for castle right, 1 and 2 are white O-O and O-O-O and 3 and 4 for black
 	enPassant   uint8 // 0-15 for which square can en passant, and 255 for none
 
 	halfMove int
-	move     int
+	Move     int
 }
 
-func newPosition() *Position {
-	pos := &Position{}
+func newState() *State {
+	state := &State{}
 
-	return pos
+	return state
+}
+
+func (s *State) canCastle(castleType CastleType, color Color) bool {
+	if color == white {
+		if castleType == shortCastle {
+			return s.castle&0b00000001 > 0
+		} else {
+			return s.castle&0b00000010 > 0
+		}
+	} else {
+		if castleType == shortCastle {
+			return s.castle&0b00000100 > 0
+		} else {
+			return s.castle&0b00001000 > 0
+		}
+	}
 }

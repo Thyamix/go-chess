@@ -1,18 +1,18 @@
 package gochess
 
 type Game struct {
-	position *Position
+	State *State
 }
 
 type GameOption func(options *Game) error
 
 func BoardLayout(fen FEN) GameOption {
-	position, err := fen.getPosition()
+	state, err := fen.getState()
 	option := func(options *Game) error {
 		if err != nil {
 			return err
 		}
-		options.position = position
+		options.State = state
 		return nil
 	}
 	return option
@@ -20,7 +20,7 @@ func BoardLayout(fen FEN) GameOption {
 
 func NewGame(opts ...GameOption) (*Game, error) {
 	game := &Game{
-		position: newPosition(),
+		State: newState(),
 	}
 
 	for _, opt := range opts {

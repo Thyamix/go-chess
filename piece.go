@@ -17,5 +17,17 @@ func (p *Piece) toWhite() {
 }
 
 func (p *Piece) toBlack() {
-	*p = *p | 0x09
+	*p = *p | 0x08
+}
+
+func (p *Piece) IsWhite() bool {
+	return *p <= 8
+}
+
+func (p *Piece) IsBlack() bool {
+	return *p > 8
+}
+
+func (p *Piece) Type() Piece {
+	return *p & 0x07
 }

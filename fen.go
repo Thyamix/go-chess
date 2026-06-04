@@ -10,10 +10,10 @@ import (
 type FEN string
 
 const (
-	FENStartingPosition FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	FENDefaultStart FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 )
 
-func (f FEN) getPosition() (*Position, error) {
+func (f FEN) getState() (*State, error) {
 	fen := string(f)
 	if fen == "" {
 		return nil, ErrInvalidFen
@@ -24,24 +24,24 @@ func (f FEN) getPosition() (*Position, error) {
 		return nil, ErrFenFenRanks
 	}
 
-	pos := &Position{}
+	state := &State{}
 
 	// Position
 	for i, rank := range ranks {
-		err := parseRank(rank, i, pos)
+		err := parseRank(rank, i, state)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	pos.board = pos.white | pos.black
+	state.board = state.white | state.black
 
 	// Active Colour
 	switch parts[1] {
 	case "b":
-		pos.isWhiteTurn = true
+		state.IsWhiteTurn = true
 	case "w":
-		pos.isWhiteTurn = false
+		state.IsWhiteTurn = false
 	default:
 		return nil, ErrFenActiveColor
 	}
@@ -54,13 +54,13 @@ func (f FEN) getPosition() (*Position, error) {
 	for _, right := range castleRight {
 		switch right {
 		case 'k':
-			pos.castle |= 0b00000001
+			state.castle |= 0b00000001
 		case 'q':
-			pos.castle |= 0b00000010
+			state.castle |= 0b00000010
 		case 'K':
-			pos.castle |= 0b00000100
+			state.castle |= 0b00000100
 		case 'Q':
-			pos.castle |= 0b00001000
+			state.castle |= 0b00001000
 		case '-':
 			if len(castleRight) > 1 {
 				return nil, ErrFenCastleRights
@@ -77,7 +77,7 @@ func (f FEN) getPosition() (*Position, error) {
 			return nil, ErrFenEnPassantTarget
 		}
 
-		pos.enPassant = pos.enPassant | 0x80>>enPassentOffset
+		state.enPassant = state.enPassant | 0x80>>enPassentOffset
 	}
 	// Move & Halfmove Clock
 	halfMoveClock, err := strconv.Atoi(parts[4])
@@ -98,23 +98,23 @@ func (f FEN) getPosition() (*Position, error) {
 		return nil, ErrFenHalfMoveTooHigh
 	}
 
-	pos.halfMove = halfMoveClock
-	pos.move = moveClock
+	state.halfMove = halfMoveClock
+	state.Move = moveClock
 
-	return pos, nil
+	return state, nil
 }
 
-func parseRank(rankString string, rankIndex int, pos *Position) error {
+func parseRank(rankString string, rankIndex int, state *State) error {
 	pieces := []rune(rankString)
 
 	index := 0 + rankIndex*8
 	for _, pieceRune := range pieces {
 		isWhite := unicode.IsUpper(pieceRune)
-		colourBoard := &pos.black
-		side := BLACK
+		colourBoard := &state.black
+		side := black
 		if isWhite {
-			colourBoard = &pos.white
-			side = WHITE
+			colourBoard = &state.white
+			side = white
 		}
 		space := 1
 		piece := EMPTY
@@ -124,27 +124,27 @@ func parseRank(rankString string, rankIndex int, pos *Position) error {
 		switch unicode.ToLower(pieceRune) {
 		case 'p':
 			piece = PAWN
-			pos.pawns[side] = pos.pawns[side] | 0x01<<shift
+			state.pawns[side] = state.pawns[side] | 0x01<<shift
 			*colourBoard = *colourBoard | 0x01<<shift
 		case 'n':
 			piece = KNIGHT
-			pos.knights[side] = pos.knights[side] | 0x01<<shift
+			state.knights[side] = state.knights[side] | 0x01<<shift
 			*colourBoard = *colourBoard | 0x01<<shift
 		case 'b':
 			piece = BISHOP
-			pos.bishops[side] = pos.bishops[side] | 0x01<<shift
+			state.bishops[side] = state.bishops[side] | 0x01<<shift
 			*colourBoard = *colourBoard | 0x01<<shift
 		case 'r':
 			piece = ROOK
-			pos.rooks[side] = pos.rooks[side] | 0x01<<shift
+			state.rooks[side] = state.rooks[side] | 0x01<<shift
 			*colourBoard = *colourBoard | 0x01<<shift
 		case 'q':
 			piece = QUEEN
-			pos.queens[side] = pos.queens[side] | 0x01<<shift
+			state.queens[side] = state.queens[side] | 0x01<<shift
 			*colourBoard = *colourBoard | 0x01<<shift
 		case 'k':
 			piece = KING
-			pos.kings[side] = pos.kings[side] | 0x01<<shift
+			state.kings[side] = state.kings[side] | 0x01<<shift
 			*colourBoard = *colourBoard | 0x01<<shift
 		default:
 			space = int(pieceRune - '0')
@@ -160,7 +160,7 @@ func parseRank(rankString string, rankIndex int, pos *Position) error {
 				piece.toBlack()
 			}
 
-			pos.pieces[index] = piece
+			state.Pieces[index] = piece
 		}
 
 		index += space

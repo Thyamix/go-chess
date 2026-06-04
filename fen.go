@@ -2,6 +2,7 @@ package gochess
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -9,24 +10,23 @@ import (
 type FEN string
 
 const (
-	StartingPositionFEN FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	FENStartingPosition FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 )
 
 func (f FEN) getPosition() (*Position, error) {
 	fen := string(f)
 	if fen == "" {
-		return nil, fmt.Errorf("FEN cannot be empty string")
+		return nil, ErrInvalidFen
 	}
 	parts := strings.Split(fen, " ")
 	ranks := strings.Split(parts[0], "/")
 	if len(ranks) < 8 || len(ranks) > 8 {
-		return nil, fmt.Errorf("FEN must exactly all 8 ranks")
+		return nil, ErrFenFenRanks
 	}
 
 	pos := &Position{}
 
 	// Position
-
 	for i, rank := range ranks {
 		err := parseRank(rank, i, pos)
 		if err != nil {
@@ -37,21 +37,69 @@ func (f FEN) getPosition() (*Position, error) {
 	pos.board = pos.white | pos.black
 
 	// Active Colour
-
 	switch parts[1] {
 	case "b":
 		pos.isWhiteTurn = true
 	case "w":
 		pos.isWhiteTurn = false
 	default:
-		return nil, fmt.Errorf("Active color is invalid, only accept 'w' or 'b'")
+		return nil, ErrFenActiveColor
 	}
 
 	// Castle Rights
+	castleRight := []rune(parts[2])
+	if len(castleRight) > 4 {
+		return nil, ErrFenCastleRights
+	}
+	for _, right := range castleRight {
+		switch right {
+		case 'k':
+			pos.castle |= 0b00000001
+		case 'q':
+			pos.castle |= 0b00000010
+		case 'K':
+			pos.castle |= 0b00000100
+		case 'Q':
+			pos.castle |= 0b00001000
+		case '-':
+			if len(castleRight) > 1 {
+				return nil, ErrFenCastleRights
+			}
+		default:
+			return nil, ErrFenCastleRights
+		}
+	}
 
 	// En Passent
+	if parts[3] != "-" {
+		enPassentOffset := rune(parts[3][0] - 'a')
+		if enPassentOffset > 7 || enPassentOffset < 0 {
+			return nil, ErrFenEnPassantTarget
+		}
 
-	// Halfmove Clock
+		pos.enPassant = pos.enPassant | 0x80>>enPassentOffset
+	}
+	// Move & Halfmove Clock
+	halfMoveClock, err := strconv.Atoi(parts[4])
+	if err != nil {
+		return nil, ErrFenClockInvalid
+	}
+
+	moveClock, err := strconv.Atoi(parts[5])
+	if err != nil {
+		return nil, ErrFenClockInvalid
+	}
+
+	if halfMoveClock > (2 * moveClock) {
+		return nil, ErrFenHalfMoveToMoveRatio
+	}
+
+	if halfMoveClock >= 100 {
+		return nil, ErrFenHalfMoveTooHigh
+	}
+
+	pos.halfMove = halfMoveClock
+	pos.move = moveClock
 
 	return pos, nil
 }
@@ -101,7 +149,7 @@ func parseRank(rankString string, rankIndex int, pos *Position) error {
 		default:
 			space = int(pieceRune - '0')
 			if space > 8 {
-				return fmt.Errorf("Invalid, cannot have space greater then 8, got rune %v of value %v", pieceRune, space)
+				return fmt.Errorf("got rune %v of value %v: %w", pieceRune, space, ErrInvalidFen)
 			}
 		}
 
@@ -118,7 +166,7 @@ func parseRank(rankString string, rankIndex int, pos *Position) error {
 		index += space
 
 		if index > 64 {
-			return fmt.Errorf("Invalid FEN, too many squares, index: %v", index)
+			return fmt.Errorf("too many squares, index %v: %w", index, ErrInvalidFen)
 		}
 	}
 	return nil

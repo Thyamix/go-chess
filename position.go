@@ -28,6 +28,9 @@ type Position struct {
 	halfmoves   uint8
 	castle      byte  // Uses first 4 bit for castle right, 1 and 2 are white O-O and O-O-O and 3 and 4 for black
 	enPassant   uint8 // 0-15 for which square can en passant, and 255 for none
+
+	halfMove int
+	move     int
 }
 
 func newPosition() *Position {
